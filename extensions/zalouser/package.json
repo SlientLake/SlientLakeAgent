@@ -9,10 +9,10 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "openclaw": "workspace:*"
+    "silentlake": "workspace:*"
   },
   "peerDependencies": {
-    "openclaw": ">=2026.3.14"
+    "silentlake": ">=2026.3.14"
   },
   "peerDependenciesMeta": {
     "openclaw": {
