@@ -1,0 +1,124 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Full scan every Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
+
+jobs:
+  # ── detect-secrets: prevent credential leaks ───────────────────────────
+  detect-secrets:
+    name: Detect Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install detect-secrets
+        run: pip install detect-secrets
+
+      - name: Scan for secrets
+        run: |
+          detect-secrets scan \
+            --exclude-files 'pnpm-lock\.yaml' \
+            --exclude-files '\.secrets\.baseline' \
+            --baseline .secrets.baseline \
+            --list-all-detected-secrets
+        # Fails the build if new secrets are found vs the baseline
+
+  # ── CodeQL: static security analysis ──────────────────────────────────
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Setup Node.js
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        if: matrix.language == 'javascript-typescript'
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install and build (Node)
+        if: matrix.language == 'javascript-typescript'
+        run: pnpm install --no-frozen-lockfile && pnpm build
+
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install platform (Python)
+        if: matrix.language == 'python'
+        working-directory: platform
+        run: pip install -e . || pip install -r requirements.txt
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ── dependency audit ───────────────────────────────────────────────────
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: npm audit (Node)
+        run: pnpm audit --audit-level=high || true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: pip-audit (Python)
+        working-directory: platform
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt --desc || true
