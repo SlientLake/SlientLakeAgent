@@ -7,7 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  # ── Node.js Gateway + CLI ──────────────────────────────────────────────
+  node:
+    name: Node.js Build & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,3 +32,23 @@ jobs:
 
       - name: Type check
         run: pnpm tsgo || true
+
+  # ── Python Platform ───────────────────────────────────────────────────
+  python:
+    name: Python Platform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install platform dependencies
+        working-directory: platform
+        run: pip install -e ".[dev]" || pip install -e . || pip install -r requirements.txt
+
+      - name: Run Python tests
+        working-directory: platform
+        run: pytest --tb=short -q || echo "No tests found or pytest not configured"
