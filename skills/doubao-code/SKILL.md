@@ -3,11 +3,8 @@ name: doubao-code
 description: "【占位】Doubao Code CLI skill. 当字节跳动官方 Doubao Code CLI 发布后，按 coding-agent 模式激活。需要 doubao-code CLI 二进制。"
 metadata:
   {
-    "openclaw": {
-      "emoji": "🫘",
-      "status": "placeholder",
-      "requires": { "anyBins": ["doubao-code"] }
-    }
+    "openclaw":
+      { "emoji": "🫘", "status": "placeholder", "requires": { "anyBins": ["doubao-code"] } },
   }
 ---
 
@@ -18,6 +15,7 @@ metadata:
 ## 激活步骤（待 CLI 发布后）
 
 1. 安装 `doubao-code` CLI：
+
    ```bash
    # 官方安装命令（待确认）
    npm install -g @bytedance/doubao-code

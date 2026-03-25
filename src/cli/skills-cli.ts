@@ -100,9 +100,13 @@ export function registerSkillsCli(program: Command) {
         const parsed = JSON.parse(raw) as Record<string, { model?: string; preferredCli?: string }>;
         defaultRuntime.log(theme.heading("Coding Skills 配置\n"));
         for (const [name, cfg] of Object.entries(parsed)) {
-          defaultRuntime.log(`  ${theme.bold(name)}`);
-          if (cfg.model) defaultRuntime.log(`    model:        ${cfg.model}`);
-          if (cfg.preferredCli) defaultRuntime.log(`    preferredCli: ${cfg.preferredCli}`);
+          defaultRuntime.log(`  ${theme.accent(name)}`);
+          if (cfg.model) {
+            defaultRuntime.log(`    model:        ${cfg.model}`);
+          }
+          if (cfg.preferredCli) {
+            defaultRuntime.log(`    preferredCli: ${cfg.preferredCli}`);
+          }
         }
         if (Object.keys(parsed).length === 0) {
           defaultRuntime.log(theme.muted("  （使用默认配置）"));
@@ -132,11 +136,15 @@ export function registerSkillsCli(program: Command) {
       } catch {
         // start fresh
       }
-      const entry = { ...(current[skill] ?? {}) };
-      if (opts.model) entry.model = opts.model;
-      if (opts.cli) entry.preferredCli = opts.cli;
+      const entry = { ...current[skill] };
+      if (opts.model) {
+        entry.model = opts.model;
+      }
+      if (opts.cli) {
+        entry.preferredCli = opts.cli;
+      }
       current[skill] = entry;
       writeFileSync(skillsPath, JSON.stringify(current, null, 2));
-      defaultRuntime.log(`${theme.ok("✓")} ${theme.bold(agentId)} / ${skill} 已更新`);
+      defaultRuntime.log(`${theme.success("✓")} ${theme.accent(agentId)} / ${skill} 已更新`);
     });
 }

@@ -13,19 +13,18 @@ type KnowledgeBase = {
 };
 
 export function registerKbCli(program: Command) {
-  const kb = program
-    .command("kb")
-    .description("知识库管理（Knowledge Base）");
+  const kb = program.command("kb").description("知识库管理（Knowledge Base）");
 
-  kb
-    .command("list")
+  kb.command("list")
     .description("列出所有知识库")
     .option("--json", "Output as JSON", false)
     .option("--url <url>", "Platform URL", DEFAULT_PLATFORM)
     .action(async (opts: { json: boolean; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/v1/kb/list`);
-        if (!res.ok) throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+        }
         const data = (await res.json()) as { kbs: KnowledgeBase[] };
         const kbs = data.kbs ?? [];
 
@@ -40,9 +39,11 @@ export function registerKbCli(program: Command) {
         defaultRuntime.log(theme.heading("知识库列表\n"));
         for (const k of kbs) {
           defaultRuntime.log(
-            `  ${theme.bold(k.kb_id.padEnd(24))} ${theme.muted(k.kb_type ?? "")} ${k.name}`,
+            `  ${theme.accent(k.kb_id.padEnd(24))} ${theme.muted(k.kb_type ?? "")} ${k.name}`,
           );
-          if (k.description) defaultRuntime.log(`    ${theme.muted(k.description)}`);
+          if (k.description) {
+            defaultRuntime.log(`    ${theme.muted(k.description)}`);
+          }
         }
       } catch (err) {
         defaultRuntime.error(`知识库查询失败: ${String(err)}`);
@@ -50,8 +51,7 @@ export function registerKbCli(program: Command) {
       }
     });
 
-  kb
-    .command("create <id>")
+  kb.command("create <id>")
     .description("创建知识库")
     .option("--name <name>", "知识库名称")
     .option("--type <type>", "类型（shared/private/team）", "shared")
@@ -79,7 +79,7 @@ export function registerKbCli(program: Command) {
             const data = (await res.json()) as { error?: string };
             throw new Error(data.error ?? `HTTP ${res.status}`);
           }
-          defaultRuntime.log(`${theme.ok("✓")} 知识库 ${theme.bold(id)} 已创建`);
+          defaultRuntime.log(`${theme.success("✓")} 知识库 ${theme.accent(id)} 已创建`);
         } catch (err) {
           defaultRuntime.error(`创建失败: ${String(err)}`);
           defaultRuntime.exit(1);
@@ -87,8 +87,7 @@ export function registerKbCli(program: Command) {
       },
     );
 
-  kb
-    .command("delete <id>")
+  kb.command("delete <id>")
     .description("删除知识库")
     .option("--url <url>", "Platform URL", DEFAULT_PLATFORM)
     .action(async (id: string, opts: { url: string }) => {
@@ -96,8 +95,10 @@ export function registerKbCli(program: Command) {
         const res = await fetch(`${opts.url}/api/v1/kb/${encodeURIComponent(id)}`, {
           method: "DELETE",
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        defaultRuntime.log(`${theme.ok("✓")} 知识库 ${theme.bold(id)} 已删除`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        defaultRuntime.log(`${theme.success("✓")} 知识库 ${theme.accent(id)} 已删除`);
       } catch (err) {
         defaultRuntime.error(`删除失败: ${String(err)}`);
         defaultRuntime.exit(1);

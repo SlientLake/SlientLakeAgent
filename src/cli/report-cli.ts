@@ -14,18 +14,18 @@ type Report = {
 
 function formatReport(r: Report): string {
   const lines = [
-    `${theme.bold(r.title ?? r.id ?? "—")}`,
+    theme.accent(r.title ?? r.id ?? "—"),
     `  ${theme.muted("Agent:")} ${r.agent_id ?? "—"}`,
     `  ${theme.muted("时间:")} ${r.created_at ?? "—"}`,
   ];
-  if (r.summary) lines.push(`  ${theme.muted("摘要:")} ${r.summary}`);
+  if (r.summary) {
+    lines.push(`  ${theme.muted("摘要:")} ${r.summary}`);
+  }
   return lines.join("\n");
 }
 
 export function registerReportCli(program: Command) {
-  const report = program
-    .command("report")
-    .description("查看和管理 Agent 汇报记录");
+  const report = program.command("report").description("查看和管理 Agent 汇报记录");
 
   report
     .command("list [agent]")
@@ -37,9 +37,13 @@ export function registerReportCli(program: Command) {
       async (agent: string | undefined, opts: { json: boolean; limit: string; url: string }) => {
         try {
           const qs = new URLSearchParams({ limit: opts.limit });
-          if (agent) qs.set("agent_id", agent);
+          if (agent) {
+            qs.set("agent_id", agent);
+          }
           const res = await fetch(`${opts.url}/api/v1/reports?${qs}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+          }
           const data = (await res.json()) as { reports: Report[] };
           const reports = data.reports ?? [];
 
@@ -53,7 +57,7 @@ export function registerReportCli(program: Command) {
             return;
           }
           defaultRuntime.log(
-            `${theme.heading("汇报记录")}${agent ? ` — ${theme.bold(agent)}` : ""}\n`,
+            `${theme.heading("汇报记录")}${agent ? ` — ${theme.accent(agent)}` : ""}\n`,
           );
           for (const r of reports) {
             defaultRuntime.log(formatReport(r));

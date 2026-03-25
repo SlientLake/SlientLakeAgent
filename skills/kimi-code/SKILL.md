@@ -3,11 +3,8 @@ name: kimi-code
 description: "【占位】Kimi Code CLI skill. 当月之暗面官方 Kimi Code CLI 发布后，按 coding-agent 模式激活。需要 kimi-code CLI 二进制。"
 metadata:
   {
-    "openclaw": {
-      "emoji": "🌙",
-      "status": "placeholder",
-      "requires": { "anyBins": ["kimi-code"] }
-    }
+    "openclaw":
+      { "emoji": "🌙", "status": "placeholder", "requires": { "anyBins": ["kimi-code"] } },
   }
 ---
 
@@ -18,6 +15,7 @@ metadata:
 ## 激活步骤（待 CLI 发布后）
 
 1. 安装 `kimi-code` CLI：
+
    ```bash
    # 官方安装命令（待确认）
    npm install -g @moonshot/kimi-code

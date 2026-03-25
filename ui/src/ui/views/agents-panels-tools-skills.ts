@@ -315,7 +315,9 @@ const CODING_AGENT_CLI_OPTIONS = ["claude", "codex", "opencode", "pi"] as const;
 export type SkillModelsConfig = Record<string, { model?: string; preferredCli?: string }>;
 
 function parseSkillsJson(content: string | null | undefined): SkillModelsConfig {
-  if (!content) return {};
+  if (!content) {
+    return {};
+  }
   try {
     const parsed = JSON.parse(content);
     return typeof parsed === "object" && parsed !== null ? (parsed as SkillModelsConfig) : {};
@@ -614,7 +616,13 @@ function renderAgentSkillRow(
                           `
                         : nothing
                     }
-                    ${params.skillsFileSaving ? html`<span class="muted" style="font-size:12px;">Saving…</span>` : nothing}
+                    ${
+                      params.skillsFileSaving
+                        ? html`
+                            <span class="muted" style="font-size: 12px">Saving…</span>
+                          `
+                        : nothing
+                    }
                   </div>
                 </details>
               `

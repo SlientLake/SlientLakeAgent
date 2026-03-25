@@ -41,9 +41,13 @@ export class KbManagerView extends LitElement {
     this.error = null;
     try {
       const res = await fetch(`${PLATFORM_BASE}/api/v1/kb/list`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = (await res.json()) as { kbs: KnowledgeBase[]; error?: string };
-      if (data.error) throw new Error(data.error);
+      if (data.error) {
+        throw new Error(data.error);
+      }
       this.kbs = data.kbs ?? [];
     } catch (err) {
       this.error = `加载知识库失败: ${String(err)}`;
@@ -89,13 +93,17 @@ export class KbManagerView extends LitElement {
   }
 
   private async deleteKb(kbId: string) {
-    if (!confirm(`确定删除知识库 "${kbId}"？此操作不可撤销。`)) return;
+    if (!confirm(`确定删除知识库 "${kbId}"？此操作不可撤销。`)) {
+      return;
+    }
     this.deleting = new Set([...this.deleting, kbId]);
     try {
       const res = await fetch(`${PLATFORM_BASE}/api/v1/kb/${encodeURIComponent(kbId)}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       this.kbs = this.kbs.filter((kb) => kb.kb_id !== kbId);
     } catch (err) {
       this.error = `删除失败: ${String(err)}`;
@@ -110,9 +118,11 @@ export class KbManagerView extends LitElement {
     return html`
       <div class="kb-create-form card">
         <div class="card-title">新建知识库</div>
-        ${this.formError
-          ? html`<div class="callout danger" style="margin-bottom:10px">${this.formError}</div>`
-          : nothing}
+        ${
+          this.formError
+            ? html`<div class="callout danger" style="margin-bottom:10px">${this.formError}</div>`
+            : nothing
+        }
         <div class="kb-form-grid">
           <label class="field">
             <span>ID <span class="required">*</span></span>
@@ -213,27 +223,29 @@ export class KbManagerView extends LitElement {
           </div>
         </div>
 
-        ${this.error
-          ? html`<div class="callout danger kb-error">
+        ${
+          this.error
+            ? html`<div class="callout danger kb-error">
               ${this.error}
               <button class="btn btn--sm" type="button" @click=${() => void this.load()}>
                 重试
               </button>
             </div>`
-          : nothing}
+            : nothing
+        }
 
         ${this.formOpen ? this.renderCreateForm() : nothing}
 
-        ${this.kbs.length === 0 && !this.loading && !this.formOpen
-          ? html`
-              <div class="card kb-empty">
-                <div class="card-title">暂无知识库</div>
-                <div class="card-sub">
-                  点击「新建」创建第一个知识库，或确认 Python 平台已启动。
+        ${
+          this.kbs.length === 0 && !this.loading && !this.formOpen
+            ? html`
+                <div class="card kb-empty">
+                  <div class="card-title">暂无知识库</div>
+                  <div class="card-sub">点击「新建」创建第一个知识库，或确认 Python 平台已启动。</div>
                 </div>
-              </div>
-            `
-          : nothing}
+              `
+            : nothing
+        }
 
         <div class="kb-list">
           ${this.kbs.map(
@@ -242,16 +254,18 @@ export class KbManagerView extends LitElement {
                 <div class="kb-card__main">
                   <div class="kb-card__id mono">${kb.kb_id}</div>
                   <div class="kb-card__name">${kb.name}</div>
-                  ${kb.description
-                    ? html`<div class="kb-card__desc">${kb.description}</div>`
-                    : nothing}
+                  ${
+                    kb.description
+                      ? html`<div class="kb-card__desc">${kb.description}</div>`
+                      : nothing
+                  }
                   <div class="kb-card__meta">
-                    ${kb.kb_type
-                      ? html`<span class="pill">${kb.kb_type}</span>`
-                      : nothing}
-                    ${kb.owner_agent_id
-                      ? html`<span class="kb-card__owner">owner: ${kb.owner_agent_id}</span>`
-                      : nothing}
+                    ${kb.kb_type ? html`<span class="pill">${kb.kb_type}</span>` : nothing}
+                    ${
+                      kb.owner_agent_id
+                        ? html`<span class="kb-card__owner">owner: ${kb.owner_agent_id}</span>`
+                        : nothing
+                    }
                   </div>
                 </div>
                 <div class="kb-card__actions">

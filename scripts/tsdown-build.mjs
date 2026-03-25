@@ -49,9 +49,14 @@ function findFatalUnresolvedImport(lines) {
     }
 
     const normalizedLine = line.replace(ANSI_ESCAPE_RE, "");
-    if (!normalizedLine.includes("extensions/")) {
-      return normalizedLine;
+    // Allow unresolved imports in extensions/ and known optional deps in node_modules
+    if (normalizedLine.includes("extensions/")) {
+      continue;
     }
+    if (normalizedLine.includes("node_modules/@whiskeysockets/baileys")) {
+      continue; // jimp/sharp are optional deps in baileys
+    }
+    return normalizedLine;
   }
 
   return null;

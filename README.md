@@ -1,7 +1,7 @@
 # 🌊 SilentLake — 多 Agent 协作平台
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.svg" alt="SilentLake" width="420">
+  <img src="https://raw.githubusercontent.com/SlientLake/SlientLakeAgent/main/assets/silentlake-banner.png" alt="SilentLake" width="560">
 </p>
 
 <p align="center">
@@ -50,14 +50,14 @@
 
 ### 🖥️ UI 前端
 
-| 功能 | 说明 |
-|------|------|
-| **聊天室** | 飞书风格多房间聊天，支持 @mention Agent、实时 WebSocket 推送 |
-| **组织拓扑图** | SVG 力导向图，可视化 9 Agent 层级与协作关系，可拖拽节点 |
-| **MCP 管理** | 查看已注册 MCP Server，按 category 分组，一键启用/禁用 |
-| **知识库管理** | 创建/删除知识库，支持 vector/doc/graph 多种类型 |
-| **per-Agent 模型配置** | 每个 Agent 独立选择主模型和 fallback 模型 |
-| **zh-CN 完整翻译** | 全 UI 中英双语，默认中文，语言选择器随时切换 |
+| 功能                   | 说明                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| **聊天室**             | 飞书风格多房间聊天，支持 @mention Agent、实时 WebSocket 推送 |
+| **组织拓扑图**         | SVG 力导向图，可视化 9 Agent 层级与协作关系，可拖拽节点      |
+| **MCP 管理**           | 查看已注册 MCP Server，按 category 分组，一键启用/禁用       |
+| **知识库管理**         | 创建/删除知识库，支持 vector/doc/graph 多种类型              |
+| **per-Agent 模型配置** | 每个 Agent 独立选择主模型和 fallback 模型                    |
+| **zh-CN 完整翻译**     | 全 UI 中英双语，默认中文，语言选择器随时切换                 |
 
 ### ⌨️ CLI 命令
 
@@ -83,18 +83,18 @@ silentlake skills coding set claude-code
 
 ### 🔗 平台集成
 
-| 模块 | 说明 |
-|------|------|
-| **A2A 消息通道** | `A2AChannel` 类，REST + WebSocket 持久化 Agent 间通信 |
-| **心跳注册** | Gateway 启动时自动注册到 Python 平台，每 60 秒心跳 |
-| **Python 平台 REST API** | 新增 MCP/KB/心跳/A2A 路由，aiohttp 实现 |
-| **CLI 中文化** | `OPENCLAW_LANG=zh-CN` 启用中文终端输出，banner 显示中文 tagline |
+| 模块                     | 说明                                                            |
+| ------------------------ | --------------------------------------------------------------- |
+| **A2A 消息通道**         | `A2AChannel` 类，REST + WebSocket 持久化 Agent 间通信           |
+| **心跳注册**             | Gateway 启动时自动注册到 Python 平台，每 60 秒心跳              |
+| **Python 平台 REST API** | 新增 MCP/KB/心跳/A2A 路由，aiohttp 实现                         |
+| **CLI 中文化**           | `OPENCLAW_LANG=zh-CN` 启用中文终端输出，banner 显示中文 tagline |
 
 ### 🧩 Skills 占位
 
-| Skill | 状态 | 说明 |
-|-------|------|------|
-| `kimi-code` 🌙 | 占位 | 月之暗面 Kimi Code CLI 发布后激活 |
+| Skill            | 状态 | 说明                                |
+| ---------------- | ---- | ----------------------------------- |
+| `kimi-code` 🌙   | 占位 | 月之暗面 Kimi Code CLI 发布后激活   |
 | `doubao-code` 🫘 | 占位 | 字节跳动 Doubao Code CLI 发布后激活 |
 
 ---

@@ -27,11 +27,11 @@ function toTable(data: TopoData): string {
   const nodeLines = (data.nodes ?? []).map((n) => {
     const statusColor =
       n.status === "online"
-        ? theme.ok(n.status)
+        ? theme.success(n.status)
         : n.status === "busy"
           ? theme.warn(n.status)
           : theme.muted(n.status ?? "offline");
-    return `  ${theme.bold(n.id.padEnd(20))} ${statusColor.padEnd(20)} ${theme.muted(n.type ?? "")}`;
+    return `  ${theme.accent(n.id.padEnd(20))} ${statusColor.padEnd(20)} ${theme.muted(n.type ?? "")}`;
   });
   return header + nodeLines.join("\n");
 }
@@ -46,7 +46,9 @@ export function registerTopologyCli(program: Command) {
     .action(async (opts: { mermaid: boolean; json: boolean; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/v1/dashboard/topology`);
-        if (!res.ok) throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} — 请确认 Python 平台已启动`);
+        }
         const data = (await res.json()) as TopoData;
 
         if (opts.json) {

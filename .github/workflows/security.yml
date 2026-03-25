@@ -7,7 +7,7 @@ on:
     branches: [main]
   schedule:
     # Full scan every Monday at 08:00 UTC
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
 
 jobs:
   # ── detect-secrets: prevent credential leaks ───────────────────────────
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install detect-secrets
         run: pip install detect-secrets
@@ -60,7 +60,7 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Setup pnpm
         if: matrix.language == 'javascript-typescript'
@@ -78,7 +78,7 @@ jobs:
         if: matrix.language == 'python'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install platform (Python)
         if: matrix.language == 'python'
@@ -100,7 +100,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -116,7 +116,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: pip-audit (Python)
         working-directory: platform
