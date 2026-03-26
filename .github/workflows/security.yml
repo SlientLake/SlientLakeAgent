@@ -30,8 +30,7 @@ jobs:
           detect-secrets scan \
             --exclude-files 'pnpm-lock\.yaml' \
             --exclude-files '\.secrets\.baseline' \
-            --baseline .secrets.baseline \
-            --list-all-detected-secrets
+            --baseline .secrets.baseline
         # Fails the build if new secrets are found vs the baseline
 
   # ── CodeQL: static security analysis ──────────────────────────────────
@@ -71,6 +70,8 @@ jobs:
 
       - name: Install and build (Node)
         if: matrix.language == 'javascript-typescript'
+        env:
+          OPENCLAW_A2UI_SKIP_MISSING: "1"
         run: pnpm install --no-frozen-lockfile && pnpm build
 
       - name: Setup Python

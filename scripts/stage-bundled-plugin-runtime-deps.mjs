@@ -36,45 +36,52 @@ function hasRuntimeDeps(packageJson) {
 }
 
 function shouldStageRuntimeDeps(packageJson) {
-  return packageJson.openclaw?.bundle?.stageRuntimeDependencies === true;
+  return (
+    packageJson.silentlake?.bundle?.stageRuntimeDependencies === true ||
+    packageJson.openclaw?.bundle?.stageRuntimeDependencies === true
+  );
 }
+
+const ROOT_PACKAGE_NAMES = ["silentlake", "openclaw"];
 
 function sanitizeBundledManifestForRuntimeInstall(pluginDir) {
   const manifestPath = path.join(pluginDir, "package.json");
   const packageJson = readJson(manifestPath);
   let changed = false;
 
-  if (packageJson.peerDependencies?.openclaw) {
-    const nextPeerDependencies = { ...packageJson.peerDependencies };
-    delete nextPeerDependencies.openclaw;
-    if (Object.keys(nextPeerDependencies).length === 0) {
-      delete packageJson.peerDependencies;
-    } else {
-      packageJson.peerDependencies = nextPeerDependencies;
+  for (const packageName of ROOT_PACKAGE_NAMES) {
+    if (packageJson.peerDependencies?.[packageName]) {
+      const nextPeerDependencies = { ...packageJson.peerDependencies };
+      delete nextPeerDependencies[packageName];
+      if (Object.keys(nextPeerDependencies).length === 0) {
+        delete packageJson.peerDependencies;
+      } else {
+        packageJson.peerDependencies = nextPeerDependencies;
+      }
+      changed = true;
     }
-    changed = true;
-  }
 
-  if (packageJson.peerDependenciesMeta?.openclaw) {
-    const nextPeerDependenciesMeta = { ...packageJson.peerDependenciesMeta };
-    delete nextPeerDependenciesMeta.openclaw;
-    if (Object.keys(nextPeerDependenciesMeta).length === 0) {
-      delete packageJson.peerDependenciesMeta;
-    } else {
-      packageJson.peerDependenciesMeta = nextPeerDependenciesMeta;
+    if (packageJson.peerDependenciesMeta?.[packageName]) {
+      const nextPeerDependenciesMeta = { ...packageJson.peerDependenciesMeta };
+      delete nextPeerDependenciesMeta[packageName];
+      if (Object.keys(nextPeerDependenciesMeta).length === 0) {
+        delete packageJson.peerDependenciesMeta;
+      } else {
+        packageJson.peerDependenciesMeta = nextPeerDependenciesMeta;
+      }
+      changed = true;
     }
-    changed = true;
-  }
 
-  if (packageJson.devDependencies?.openclaw) {
-    const nextDevDependencies = { ...packageJson.devDependencies };
-    delete nextDevDependencies.openclaw;
-    if (Object.keys(nextDevDependencies).length === 0) {
-      delete packageJson.devDependencies;
-    } else {
-      packageJson.devDependencies = nextDevDependencies;
+    if (packageJson.devDependencies?.[packageName]) {
+      const nextDevDependencies = { ...packageJson.devDependencies };
+      delete nextDevDependencies[packageName];
+      if (Object.keys(nextDevDependencies).length === 0) {
+        delete packageJson.devDependencies;
+      } else {
+        packageJson.devDependencies = nextDevDependencies;
+      }
+      changed = true;
     }
-    changed = true;
   }
 
   if (changed) {

@@ -28,6 +28,8 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build
+        env:
+          OPENCLAW_A2UI_SKIP_MISSING: "1"
         run: pnpm build
 
       - name: Type check

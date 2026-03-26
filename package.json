@@ -2,7 +2,13 @@
   "name": "silentlake",
   "version": "2026.3.24",
   "description": "Multi-agent collaboration platform — 9-agent org hierarchy built on OpenClaw",
-  "keywords": ["ai", "agent", "multi-agent", "silentlake", "openclaw"],
+  "keywords": [
+    "agent",
+    "ai",
+    "multi-agent",
+    "openclaw",
+    "silentlake"
+  ],
   "homepage": "https://github.com/SlientLake/SlientLakeAgent#readme",
   "bugs": {
     "url": "https://github.com/SlientLake/SlientLakeAgent/issues"
@@ -727,6 +733,7 @@
     "gaxios": "7.1.4",
     "hono": "4.12.8",
     "ipaddr.js": "^2.3.0",
+    "jimp": "^1.6.0",
     "jiti": "^2.6.1",
     "json5": "^2.2.3",
     "jszip": "^3.10.1",
