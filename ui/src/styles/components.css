@@ -4730,7 +4730,7 @@ details[open] > .ov-expandable-toggle::after {
   letter-spacing: 0.08em;
   color: var(--muted);
   padding: 4px 0;
-  border-bottom: 1px solid var(--border, rgba(128,128,128,0.15));
+  border-bottom: 1px solid var(--border, rgba(128, 128, 128, 0.15));
 }
 
 .mcp-server-card {
@@ -4738,14 +4738,14 @@ details[open] > .ov-expandable-toggle::after {
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--border, rgba(128,128,128,0.15));
+  border: 1px solid var(--border, rgba(128, 128, 128, 0.15));
   border-radius: 8px;
   background: var(--surface, transparent);
   transition: border-color 0.15s;
 }
 
 .mcp-server-card:hover {
-  border-color: var(--accent, rgba(128,128,128,0.4));
+  border-color: var(--accent, rgba(128, 128, 128, 0.4));
 }
 
 .mcp-server-card__body {
@@ -4844,14 +4844,14 @@ details[open] > .ov-expandable-toggle::after {
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--border, rgba(128,128,128,0.15));
+  border: 1px solid var(--border, rgba(128, 128, 128, 0.15));
   border-radius: 8px;
   background: var(--surface, transparent);
   transition: border-color 0.15s;
 }
 
 .kb-card:hover {
-  border-color: var(--accent, rgba(128,128,128,0.4));
+  border-color: var(--accent, rgba(128, 128, 128, 0.4));
 }
 
 .kb-card__icon {
@@ -4896,7 +4896,7 @@ details[open] > .ov-expandable-toggle::after {
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  border: 1px dashed var(--border, rgba(128,128,128,0.3));
+  border: 1px dashed var(--border, rgba(128, 128, 128, 0.3));
   border-radius: 8px;
   background: var(--surface, transparent);
 }
@@ -4912,7 +4912,7 @@ details[open] > .ov-expandable-toggle::after {
   flex: 1;
   min-width: 120px;
   padding: 6px 10px;
-  border: 1px solid var(--border, rgba(128,128,128,0.3));
+  border: 1px solid var(--border, rgba(128, 128, 128, 0.3));
   border-radius: 6px;
   background: var(--input-bg, transparent);
   font-size: 13px;

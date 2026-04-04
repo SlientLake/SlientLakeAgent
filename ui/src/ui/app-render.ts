@@ -1188,7 +1188,7 @@ export function renderApp(state: AppViewState) {
                     } catch {
                       parsed = {};
                     }
-                    const skillEntry = { ...(parsed[skillName] ?? {}) };
+                    const skillEntry = { ...parsed[skillName] };
                     if (value) {
                       skillEntry[field] = value;
                     } else {
@@ -1528,27 +1528,46 @@ export function renderApp(state: AppViewState) {
 
         ${
           state.tab === "chatroom"
-            ? lazyRender(lazyChatroom, () =>
-                html`<chatroom-view .agentsList=${state.agentsList}></chatroom-view>`,
+            ? lazyRender(
+                lazyChatroom,
+                () => html`<chatroom-view .agentsList=${state.agentsList}></chatroom-view>`,
               )
             : nothing
         }
 
         ${
           state.tab === "topology"
-            ? lazyRender(lazyTopology, () => html`<topology-view></topology-view>`)
+            ? lazyRender(
+                lazyTopology,
+                () =>
+                  html`
+                    <topology-view></topology-view>
+                  `,
+              )
             : nothing
         }
 
         ${
           state.tab === "mcp"
-            ? lazyRender(lazyMcpManager, () => html`<mcp-manager-view></mcp-manager-view>`)
+            ? lazyRender(
+                lazyMcpManager,
+                () =>
+                  html`
+                    <mcp-manager-view></mcp-manager-view>
+                  `,
+              )
             : nothing
         }
 
         ${
           state.tab === "kb"
-            ? lazyRender(lazyKbManager, () => html`<kb-manager-view></kb-manager-view>`)
+            ? lazyRender(
+                lazyKbManager,
+                () =>
+                  html`
+                    <kb-manager-view></kb-manager-view>
+                  `,
+              )
             : nothing
         }
 

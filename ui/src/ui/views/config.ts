@@ -556,19 +556,18 @@ function renderAppearanceSection(props: ConfigProps) {
       <div class="settings-appearance__section">
         <h3 class="settings-appearance__heading">${t("overview.access.language")}</h3>
         <div class="settings-locale-grid">
-          ${SUPPORTED_LOCALES.map(
-            (loc) => {
-              const locKey = loc.replace("-", "");
-              const currentLocale = props.locale ?? i18n.getLocale();
-              return html`
+          ${SUPPORTED_LOCALES.map((loc) => {
+            const locKey = loc.replace("-", "");
+            const currentLocale = props.locale ?? i18n.getLocale();
+            return html`
                 <button
                   class="settings-locale-card ${loc === currentLocale ? "settings-locale-card--active" : ""}"
                   title=${loc}
                   @click=${() => {
                     if (props.setLocale) {
-                      props.setLocale(loc as Locale);
+                      props.setLocale(loc);
                     } else {
-                      void i18n.setLocale(loc as Locale);
+                      void i18n.setLocale(loc);
                     }
                   }}
                 >
@@ -582,8 +581,7 @@ function renderAppearanceSection(props: ConfigProps) {
                   }
                 </button>
               `;
-            },
-          )}
+          })}
         </div>
       </div>
 

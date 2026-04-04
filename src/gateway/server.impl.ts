@@ -1166,7 +1166,7 @@ export async function startGatewayServer(
   });
   // Auto-start SilentLake Python platform if not already running
   void import("../platform/platform-launcher.js").then(({ ensurePlatformRunning }) => {
-    ensurePlatformRunning(log);
+    void ensurePlatformRunning(log);
   });
   const stopGatewayUpdateCheck = minimalTestGateway
     ? () => {}

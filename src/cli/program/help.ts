@@ -31,7 +31,10 @@ const EXAMPLES = [
     "Send via your web session and print JSON result.",
   ],
   ["silentlake gateway --port 18789", "Run the WebSocket Gateway locally."],
-  ["silentlake --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
+  [
+    "silentlake --dev gateway",
+    "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001.",
+  ],
   ["silentlake gateway --force", "Kill anything bound to the default gateway port, then start it."],
   ["silentlake topology --mermaid", "Show 9-agent org topology as a Mermaid diagram."],
   [

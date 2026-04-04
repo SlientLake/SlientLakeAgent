@@ -20,7 +20,7 @@ type TopologyNode = {
 type TopologyLink = {
   source: string;
   target: string;
-  type?: "reports_to" | "collaborates" | string;
+  type?: string;
   // Resolved after layout
   sx?: number;
   sy?: number;
@@ -45,7 +45,12 @@ const NODE_RADIUS = 24;
 const TICK_STEPS = 150; // run simulation for N ticks before rendering
 
 // Minimal force simulation
-function runSimulation(nodes: TopologyNode[], links: TopologyLink[], width: number, height: number) {
+function runSimulation(
+  nodes: TopologyNode[],
+  links: TopologyLink[],
+  width: number,
+  height: number,
+) {
   const cx = width / 2;
   const cy = height / 2;
   const nodeById = new Map(nodes.map((n) => [n.id, n]));
@@ -75,7 +80,9 @@ function runSimulation(nodes: TopologyNode[], links: TopologyLink[], width: numb
     for (const link of links) {
       const source = nodeById.get(link.source);
       const target = nodeById.get(link.target);
-      if (!source || !target) continue;
+      if (!source || !target) {
+        continue;
+      }
       const dx = target.x - source.x;
       const dy = target.y - source.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -165,13 +172,17 @@ export class TopologyView extends LitElement {
           this.svgWidth = entry.contentRect.width || 800;
           this.svgHeight = Math.max(entry.contentRect.height, 400);
           // Re-run layout on resize
-          if (this.nodes.length > 0) this.layout();
+          if (this.nodes.length > 0) {
+            this.layout();
+          }
         }
       });
       this.resizeObserver.observe(container);
       this.svgWidth = (container as HTMLElement).clientWidth || 800;
       this.svgHeight = Math.max((container as HTMLElement).clientHeight, 400);
-      if (this.nodes.length > 0) this.layout();
+      if (this.nodes.length > 0) {
+        this.layout();
+      }
     }
   }
 
@@ -180,7 +191,9 @@ export class TopologyView extends LitElement {
     this.error = null;
     try {
       const res = await fetch(`${PLATFORM_BASE}/api/v1/dashboard/topology`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = (await res.json()) as TopologyData;
       this.initFromData(data);
     } catch (err) {
@@ -201,7 +214,12 @@ export class TopologyView extends LitElement {
     this.nodes = (data.nodes ?? []).map((n, i) => {
       const existing = existingById.get(n.id);
       if (existing) {
-        return { ...existing, status: (n.status as NodeStatus) ?? "offline", type: n.type, group: n.group };
+        return {
+          ...existing,
+          status: (n.status as NodeStatus) ?? "offline",
+          type: n.type,
+          group: n.group,
+        };
       }
       // Arrange in a circle initially
       const angle = (i / count) * 2 * Math.PI;
@@ -225,7 +243,9 @@ export class TopologyView extends LitElement {
   }
 
   private layout() {
-    if (this.nodes.length === 0) return;
+    if (this.nodes.length === 0) {
+      return;
+    }
     runSimulation(this.nodes, this.links, this.svgWidth, this.svgHeight);
     // Resolve link coordinates for rendering
     const nodeById = new Map(this.nodes.map((n) => [n.id, n]));
@@ -248,7 +268,9 @@ export class TopologyView extends LitElement {
     e.stopPropagation();
     this.dragging = node;
     const svgEl = this.querySelector(".topology-svg") as SVGSVGElement | null;
-    if (!svgEl) return;
+    if (!svgEl) {
+      return;
+    }
     const pt = svgEl.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
@@ -260,7 +282,9 @@ export class TopologyView extends LitElement {
     node.fy = node.y;
 
     const onMove = (ev: MouseEvent) => {
-      if (!this.dragging) return;
+      if (!this.dragging) {
+        return;
+      }
       const pt2 = svgEl.createSVGPoint();
       pt2.x = ev.clientX;
       pt2.y = ev.clientY;
@@ -308,7 +332,9 @@ export class TopologyView extends LitElement {
 
   private renderLinks() {
     return this.links.map((link) => {
-      if (link.sx == null || link.sy == null || link.tx == null || link.ty == null) return nothing;
+      if (link.sx == null || link.sy == null || link.tx == null || link.ty == null) {
+        return nothing;
+      }
       const isReport = link.type === "reports_to";
       const isCollab = link.type === "collaborates";
       // Shorten line to node radius
@@ -370,7 +396,9 @@ export class TopologyView extends LitElement {
 
   private renderDetailPanel() {
     const node = this.selectedNode;
-    if (!node) return nothing;
+    if (!node) {
+      return nothing;
+    }
     return html`
       <div class="topology-detail">
         <div class="topology-detail__header">
@@ -392,34 +420,42 @@ export class TopologyView extends LitElement {
             ● ${node.status ?? "offline"}
           </span>
         </div>
-        ${node.type
-          ? html`<div class="topology-detail__row">
+        ${
+          node.type
+            ? html`<div class="topology-detail__row">
               <span class="topology-detail__label">类型</span>
               <span class="topology-detail__value">${node.type}</span>
             </div>`
-          : nothing}
-        ${node.group
-          ? html`<div class="topology-detail__row">
+            : nothing
+        }
+        ${
+          node.group
+            ? html`<div class="topology-detail__row">
               <span class="topology-detail__label">分组</span>
               <span class="topology-detail__value">${node.group}</span>
             </div>`
-          : nothing}
+            : nothing
+        }
         <div class="topology-detail__row">
           <span class="topology-detail__label">汇报给</span>
           <span class="topology-detail__value">
-            ${this.links
-              .filter((l) => l.source === node.id && l.type === "reports_to")
-              .map((l) => l.target)
-              .join(", ") || "—"}
+            ${
+              this.links
+                .filter((l) => l.source === node.id && l.type === "reports_to")
+                .map((l) => l.target)
+                .join(", ") || "—"
+            }
           </span>
         </div>
         <div class="topology-detail__row">
           <span class="topology-detail__label">下属</span>
           <span class="topology-detail__value">
-            ${this.links
-              .filter((l) => l.target === node.id && l.type === "reports_to")
-              .map((l) => l.source)
-              .join(", ") || "—"}
+            ${
+              this.links
+                .filter((l) => l.target === node.id && l.type === "reports_to")
+                .map((l) => l.source)
+                .join(", ") || "—"
+            }
           </span>
         </div>
       </div>
@@ -458,14 +494,16 @@ export class TopologyView extends LitElement {
           </button>
         </div>
 
-        ${this.error
-          ? html`<div class="callout danger topology-error">
+        ${
+          this.error
+            ? html`<div class="callout danger topology-error">
               ${this.error}
               <button class="btn btn--sm" type="button" @click=${() => void this.load()}>
                 重试
               </button>
             </div>`
-          : nothing}
+            : nothing
+        }
 
         <div class="topology-content" @click=${() => (this.selectedNode = null)}>
           <div class="topology-svg-container">
@@ -489,8 +527,9 @@ export class TopologyView extends LitElement {
               </defs>
               <g class="topology-links">${this.renderLinks()}</g>
               <g class="topology-nodes">${this.renderNodes()}</g>
-              ${this.nodes.length === 0 && !this.loading
-                ? svg`
+              ${
+                this.nodes.length === 0 && !this.loading
+                  ? svg`
                     <text
                       x=${this.svgWidth / 2}
                       y=${this.svgHeight / 2}
@@ -501,7 +540,8 @@ export class TopologyView extends LitElement {
                       暂无 Agent 数据，请确认 Python 平台已启动（oc-platform platform start）
                     </text>
                   `
-                : nothing}
+                  : nothing
+              }
             </svg>
           </div>
           ${this.renderDetailPanel()}

@@ -9,6 +9,7 @@ const extraArgs = process.argv.slice(2);
 const INEFFECTIVE_DYNAMIC_IMPORT_RE = /\[INEFFECTIVE_DYNAMIC_IMPORT\]/;
 const UNRESOLVED_IMPORT_RE = /\[UNRESOLVED_IMPORT\]/;
 const ANSI_ESCAPE_RE = new RegExp(String.raw`\u001B\[[0-9;]*m`, "g");
+const BAILEYS_OPTIONAL_DEP_RE = /\b(jimp|sharp)\b/;
 
 function removeDistPluginNodeModulesSymlinks(rootDir) {
   const extensionsDir = path.join(rootDir, "extensions");
@@ -49,9 +50,17 @@ function findFatalUnresolvedImport(lines) {
     }
 
     const normalizedLine = line.replace(ANSI_ESCAPE_RE, "");
-    if (!normalizedLine.includes("extensions/")) {
-      return normalizedLine;
+    // Allow unresolved imports in extensions/ and known optional deps in node_modules
+    if (normalizedLine.includes("extensions/")) {
+      continue;
     }
+    if (
+      normalizedLine.includes("node_modules/@whiskeysockets/baileys") &&
+      BAILEYS_OPTIONAL_DEP_RE.test(normalizedLine)
+    ) {
+      continue;
+    }
+    return normalizedLine;
   }
 
   return null;

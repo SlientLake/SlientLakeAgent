@@ -212,8 +212,7 @@ export const zh_CN: TranslationMap = {
       sessionsCount: "{count} 个会话",
     },
     query: {
-      placeholder:
-        "筛选会话（例如 key:agent:main:cron* model:gpt-4o has:errors minTokens:2000）",
+      placeholder: "筛选会话（例如 key:agent:main:cron* model:gpt-4o has:errors minTokens:2000）",
       apply: "筛选（客户端）",
       matching: "{shown} / {total} 个会话匹配",
       inRange: "范围内共 {total} 个会话",
@@ -227,8 +226,7 @@ export const zh_CN: TranslationMap = {
     },
     empty: {
       title: "从日期范围开始",
-      subtitle:
-        "加载使用数据，无需离开仪表盘即可比较费用、检查会话并深入分析时间线。",
+      subtitle: "加载使用数据，无需离开仪表盘即可比较费用、检查会话并深入分析时间线。",
       hint: "选择日期范围并点击刷新以加载使用情况。",
       noData: "无数据",
       featureOverview: "概览卡片",

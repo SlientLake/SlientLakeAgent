@@ -60,7 +60,9 @@ export class ChatroomView extends LitElement {
     this.loadError = null;
     try {
       const res = await fetch(`${PLATFORM_BASE}/api/v1/rooms`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = (await res.json()) as { rooms: Room[] };
       this.rooms = data.rooms ?? [];
       if (this.rooms.length > 0 && !this.activeRoomId) {
@@ -100,23 +102,23 @@ export class ChatroomView extends LitElement {
     const ws = new WebSocket(`${WS_BASE}/ws/chat/${roomId}`);
     this.ws = ws;
 
-    ws.onopen = () => {
+    ws.addEventListener("open", () => {
       this.wsConnected = true;
-    };
+    });
 
-    ws.onclose = () => {
+    ws.addEventListener("close", () => {
       this.wsConnected = false;
       if (this.ws === ws) {
         this.ws = null;
       }
-    };
+    });
 
-    ws.onerror = () => {
+    ws.addEventListener("error", () => {
       this.loadError = "WebSocket 连接失败，请确认 Python 平台已启动（oc-platform platform start）";
       this.wsConnected = false;
-    };
+    });
 
-    ws.onmessage = (event: MessageEvent<string>) => {
+    ws.addEventListener("message", (event: MessageEvent<string>) => {
       try {
         const msg = JSON.parse(event.data) as ChatMsg;
         // Skip duplicate welcome messages that overlap with loaded history
@@ -131,18 +133,22 @@ export class ChatroomView extends LitElement {
       } catch {
         // Ignore malformed messages
       }
-    };
+    });
   }
 
   private scrollToBottom() {
     setTimeout(() => {
       const el = this.querySelector(".chatroom-messages");
-      if (el) el.scrollTop = el.scrollHeight;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
     }, 50);
   }
 
   private sendMessage() {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.draft.trim()) return;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.draft.trim()) {
+      return;
+    }
     this.ws.send(
       JSON.stringify({
         type: "normal",
@@ -206,14 +212,20 @@ export class ChatroomView extends LitElement {
 
   private filteredAgents(): string[] {
     const names = this.agentNames;
-    if (!this.mentionQuery) return names;
+    if (!this.mentionQuery) {
+      return names;
+    }
     return names.filter((n) => n.toLowerCase().includes(this.mentionQuery.toLowerCase()));
   }
 
   private insertMention(name: string) {
-    if (!name) return;
+    if (!name) {
+      return;
+    }
     const ta = this.querySelector(".chatroom-input") as HTMLTextAreaElement | null;
-    if (!ta) return;
+    if (!ta) {
+      return;
+    }
     const before = this.draft.slice(0, this.mentionStart);
     const after = this.draft.slice(ta.selectionStart ?? this.draft.length);
     this.draft = `${before}@${name} ${after}`;
@@ -240,9 +252,7 @@ export class ChatroomView extends LitElement {
     // Highlight @mentions
     const parts = content.split(/(@\S+)/g);
     return parts.map((part) =>
-      part.startsWith("@")
-        ? html`<span class="chatroom-mention">${part}</span>`
-        : html`${part}`,
+      part.startsWith("@") ? html`<span class="chatroom-mention">${part}</span>` : html`${part}`,
     );
   }
 
@@ -267,9 +277,13 @@ export class ChatroomView extends LitElement {
               </button>
             `,
           )}
-          ${this.rooms.length === 0 && !this.loadError
-            ? html`<div class="chatroom-sidebar__empty">暂无聊天室</div>`
-            : nothing}
+          ${
+            this.rooms.length === 0 && !this.loadError
+              ? html`
+                  <div class="chatroom-sidebar__empty">暂无聊天室</div>
+                `
+              : nothing
+          }
           <button
             class="chatroom-sidebar__reload btn btn--sm"
             type="button"
@@ -281,8 +295,9 @@ export class ChatroomView extends LitElement {
 
         <!-- Main area -->
         <main class="chatroom-main">
-          ${this.loadError
-            ? html`
+          ${
+            this.loadError
+              ? html`
                 <div class="callout danger chatroom-error">
                   ${this.loadError}
                   <button
@@ -294,14 +309,17 @@ export class ChatroomView extends LitElement {
                   </button>
                 </div>
               `
-            : nothing}
+              : nothing
+          }
 
           <!-- Header -->
           <div class="chatroom-header">
             <span class="chatroom-header__name">${activeRoom?.name ?? "请选择聊天室"}</span>
-            ${activeRoom?.description
-              ? html`<span class="chatroom-header__desc">${activeRoom.description}</span>`
-              : nothing}
+            ${
+              activeRoom?.description
+                ? html`<span class="chatroom-header__desc">${activeRoom.description}</span>`
+                : nothing
+            }
             <span class="chatroom-header__status ${this.wsConnected ? "online" : "offline"}">
               ${this.wsConnected ? "● 已连接" : "○ 未连接"}
             </span>
@@ -327,11 +345,13 @@ export class ChatroomView extends LitElement {
                       <span class="chatroom-msg__sender"
                         >${msg.sender_name ?? msg.sender_id ?? "Unknown"}</span
                       >
-                      ${badge
-                        ? html`<span class="chatroom-msg__badge chatroom-msg__badge--${msg.type}"
+                      ${
+                        badge
+                          ? html`<span class="chatroom-msg__badge chatroom-msg__badge--${msg.type}"
                             >${badge}</span
                           >`
-                        : nothing}
+                          : nothing
+                      }
                       <span class="chatroom-msg__time"
                         >${new Date(msg.timestamp).toLocaleTimeString("zh-CN", {
                           hour: "2-digit",
@@ -344,18 +364,27 @@ export class ChatroomView extends LitElement {
                 </div>
               `;
             })}
-            ${this.messages.length === 0 && !this.loadError && this.activeRoomId
-              ? html`<div class="chatroom-messages__empty">暂无消息，发送第一条消息吧</div>`
-              : nothing}
-            ${!this.activeRoomId && !this.loadError
-              ? html`<div class="chatroom-messages__empty">请从左侧选择聊天室</div>`
-              : nothing}
+            ${
+              this.messages.length === 0 && !this.loadError && this.activeRoomId
+                ? html`
+                    <div class="chatroom-messages__empty">暂无消息，发送第一条消息吧</div>
+                  `
+                : nothing
+            }
+            ${
+              !this.activeRoomId && !this.loadError
+                ? html`
+                    <div class="chatroom-messages__empty">请从左侧选择聊天室</div>
+                  `
+                : nothing
+            }
           </div>
 
           <!-- Input area -->
           <div class="chatroom-input-area">
-            ${this.mentionOpen && filtered.length > 0
-              ? html`
+            ${
+              this.mentionOpen && filtered.length > 0
+                ? html`
                   <div class="chatroom-mention-dropdown">
                     ${filtered.map(
                       (name, idx) => html`
@@ -373,13 +402,16 @@ export class ChatroomView extends LitElement {
                     )}
                   </div>
                 `
-              : nothing}
+                : nothing
+            }
             <div class="chatroom-input-row">
               <textarea
                 class="chatroom-input"
-                placeholder=${this.wsConnected
-                  ? "输入消息… Enter 发送，Shift+Enter 换行，@ 提及 Agent"
-                  : "未连接到聊天室（确认 Python 平台已启动）"}
+                placeholder=${
+                  this.wsConnected
+                    ? "输入消息… Enter 发送，Shift+Enter 换行，@ 提及 Agent"
+                    : "未连接到聊天室（确认 Python 平台已启动）"
+                }
                 .value=${this.draft}
                 ?disabled=${!this.wsConnected}
                 rows="3"
