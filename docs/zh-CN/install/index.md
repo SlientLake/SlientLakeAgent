@@ -82,7 +82,7 @@ x-i18n:
     <Tabs>
       <Tab title="npm">
         ```bash
-        npm install -g openclaw@latest
+        npm install -g silentlake@latest
         openclaw onboard --install-daemon
         ```
 
@@ -90,7 +90,7 @@ x-i18n:
           如果你全局安装了 libvips（在 macOS 上通过 Homebrew 很常见），并且 `sharp` 失败，请强制使用预构建二进制文件：
 
           ```bash
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
+          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g silentlake@latest
           ```
 
           如果你看到 `sharp: Please add node-gyp to your dependencies`，请安装构建工具链（macOS：Xcode CLT + `npm install -g node-gyp`），或者使用上面的环境变量。
@@ -98,7 +98,7 @@ x-i18n:
       </Tab>
       <Tab title="pnpm">
         ```bash
-        pnpm add -g openclaw@latest
+        pnpm add -g silentlake@latest
         pnpm approve-builds -g        # 批准 openclaw、node-llama-cpp、sharp 等
         openclaw onboard --install-daemon
         ```

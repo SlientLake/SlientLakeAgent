@@ -59,7 +59,7 @@ async function requireRiskAcknowledgement(params: {
       "openclaw security audit --deep",
       "openclaw security audit --fix",
       "",
-      "Must read: https://docs.openclaw.ai/gateway/security",
+      "Must read: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/security",
     ].join("\n"),
     "Security",
   );
@@ -94,7 +94,7 @@ export async function runSetupWizard(
         [
           ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
           "",
-          "Docs: https://docs.openclaw.ai/gateway/configuration",
+          "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/configuration",
         ].join("\n"),
         "Config issues",
       );

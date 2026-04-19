@@ -343,8 +343,14 @@ export function loadSessionEntry(sessionKey: string) {
     canonicalKey,
     agentId,
   });
-  const legacyKey = match?.key !== canonicalKey ? match?.key : undefined;
-  return { cfg, storePath, store, entry: match?.entry, canonicalKey, legacyKey };
+  const target = resolveGatewaySessionStoreTarget({
+    cfg,
+    key: sessionKey.trim(),
+    store,
+  });
+  const resolvedMatch = findStoreMatch(store, ...target.storeKeys) ?? match;
+  const legacyKey = resolvedMatch?.key !== canonicalKey ? resolvedMatch?.key : undefined;
+  return { cfg, storePath, store, entry: resolvedMatch?.entry, canonicalKey, legacyKey };
 }
 
 /**
@@ -388,6 +394,13 @@ export function findStoreKeysIgnoreCase(
     }
   }
   return matches;
+}
+
+export function findSessionEntryByStoreKeys(
+  store: Record<string, SessionEntry>,
+  keys: Iterable<string>,
+): { entry: SessionEntry; key: string } | undefined {
+  return findStoreMatch(store, ...Array.from(keys));
 }
 
 /**
@@ -574,15 +587,19 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
   return { defaultId, mainKey, scope, agents };
 }
 
-function canonicalizeSessionKeyForAgent(agentId: string, key: string): string {
+function canonicalizeSessionKeyForAgent(cfg: OpenClawConfig, agentId: string, key: string): string {
   const lowered = key.toLowerCase();
   if (lowered === "global" || lowered === "unknown") {
     return lowered;
   }
   if (lowered.startsWith("agent:")) {
-    return lowered;
+    return canonicalizeMainSessionAlias({ cfg, agentId, sessionKey: lowered });
   }
-  return `agent:${normalizeAgentId(agentId)}:${lowered}`;
+  return canonicalizeMainSessionAlias({
+    cfg,
+    agentId,
+    sessionKey: `agent:${normalizeAgentId(agentId)}:${lowered}`,
+  });
 }
 
 function resolveDefaultStoreAgentId(cfg: OpenClawConfig): string {
@@ -623,7 +640,7 @@ export function resolveSessionStoreKey(params: {
     return resolveMainSessionKey(params.cfg);
   }
   const agentId = resolveDefaultStoreAgentId(params.cfg);
-  return canonicalizeSessionKeyForAgent(agentId, lowered);
+  return canonicalizeSessionKeyForAgent(params.cfg, agentId, lowered);
 }
 
 function resolveSessionStoreAgentId(cfg: OpenClawConfig, canonicalKey: string): string {
@@ -856,7 +873,7 @@ export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
     const store = loadSessionStore(storePath);
     const combined: Record<string, SessionEntry> = {};
     for (const [key, entry] of Object.entries(store)) {
-      const canonicalKey = canonicalizeSessionKeyForAgent(defaultAgentId, key);
+      const canonicalKey = canonicalizeSessionKeyForAgent(cfg, defaultAgentId, key);
       mergeSessionEntryIntoCombined({
         cfg,
         combined,
@@ -875,7 +892,7 @@ export function loadCombinedSessionStoreForGateway(cfg: OpenClawConfig): {
     const storePath = target.storePath;
     const store = loadSessionStore(storePath);
     for (const [key, entry] of Object.entries(store)) {
-      const canonicalKey = canonicalizeSessionKeyForAgent(agentId, key);
+      const canonicalKey = canonicalizeSessionKeyForAgent(cfg, agentId, key);
       mergeSessionEntryIntoCombined({
         cfg,
         combined,

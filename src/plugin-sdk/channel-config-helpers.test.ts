@@ -235,7 +235,8 @@ describe("createScopedDmSecurityResolver", () => {
       allowFrom: ["Owner"],
       policyPath: "channels.demo.accounts.alt.dmPolicy",
       allowFromPath: "channels.demo.accounts.alt.",
-      approveHint: "Approve via: openclaw pairing list demo / openclaw pairing approve demo <code>",
+      approveHint:
+        "Approve via: silentlake pairing list demo / silentlake pairing approve demo <code>",
       normalizeEntry: expect.any(Function),
     });
   });

@@ -204,7 +204,7 @@ describe("agent components", () => {
     expect(pairingText).toContain("Pairing code:");
     const code = pairingText.match(/Pairing code:\s*([A-Z2-9]{8})/)?.[1];
     expect(code).toBeDefined();
-    expect(pairingText).toContain(`openclaw pairing approve discord ${code}`);
+    expect(pairingText).toContain(`silentlake pairing approve discord ${code}`);
     expect(peekSystemEvents(dmSessionKey)).toEqual([]);
     expect(readAllowFromStoreMock).toHaveBeenCalledWith("discord", "default");
   });

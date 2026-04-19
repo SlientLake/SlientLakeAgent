@@ -273,7 +273,7 @@ export async function setupSearch(
       [
         "No web search providers are currently available under this plugin policy.",
         "Enable plugins or remove deny rules, then run setup again.",
-        "Docs: https://docs.openclaw.ai/tools/web",
+        "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
       ].join("\n"),
       "Web search",
     );
@@ -284,7 +284,7 @@ export async function setupSearch(
     [
       "Web search lets your agent look things up online.",
       "Choose a provider and paste your API key.",
-      "Docs: https://docs.openclaw.ai/tools/web",
+      "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
     ].join("\n"),
     "Web search",
   );
@@ -353,7 +353,7 @@ export async function setupSearch(
         "Secret references enabled — OpenClaw will store a reference instead of the API key.",
         `Env var: ${ref.id}${envAvailable ? " (detected)" : ""}.`,
         ...(envAvailable ? [] : [`Set ${ref.id} in the Gateway environment.`]),
-        "Docs: https://docs.openclaw.ai/tools/web",
+        "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
       ].join("\n"),
       "Web search",
     );
@@ -387,7 +387,7 @@ export async function setupSearch(
     [
       `No ${credentialLabel} stored — web_search won't work until a key is available.`,
       `Get your key at: ${entry.signupUrl}`,
-      "Docs: https://docs.openclaw.ai/tools/web",
+      "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
     ].join("\n"),
     "Web search",
   );

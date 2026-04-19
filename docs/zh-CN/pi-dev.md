@@ -73,5 +73,5 @@ scripts/pi/run-tests.sh --live
 
 ## 参考资料
 
-- https://docs.openclaw.ai/testing
-- https://docs.openclaw.ai/start/getting-started
+- https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/testing
+- https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/start/getting-started

@@ -21,12 +21,12 @@ OpenClaw 需要 Node 22 或更新版本。
 <Tabs>
   <Tab title="npm">
     ```bash
-    npm install -g openclaw@latest
+    npm install -g silentlake@latest
     ```
   </Tab>
   <Tab title="pnpm">
     ```bash
-    pnpm add -g openclaw@latest
+    pnpm add -g silentlake@latest
     ```
   </Tab>
 </Tabs>

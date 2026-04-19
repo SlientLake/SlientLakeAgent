@@ -14,8 +14,6 @@ import { hasConfiguredSecretInput } from "./types.secrets.js";
 
 type WarnState = { warned: boolean };
 
-let defaultWarnState: WarnState = { warned: false };
-
 type AnthropicAuthDefaultsMode = "api_key" | "oauth";
 
 const DEFAULT_MODEL_ALIASES: Readonly<Record<string, string>> = {
@@ -145,28 +143,9 @@ export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
 
 export function applySessionDefaults(
   cfg: OpenClawConfig,
-  options: SessionDefaultsOptions = {},
+  _options: SessionDefaultsOptions = {},
 ): OpenClawConfig {
-  const session = cfg.session;
-  if (!session || session.mainKey === undefined) {
-    return cfg;
-  }
-
-  const trimmed = session.mainKey.trim();
-  const warn = options.warn ?? console.warn;
-  const warnState = options.warnState ?? defaultWarnState;
-
-  const next: OpenClawConfig = {
-    ...cfg,
-    session: { ...session, mainKey: "main" },
-  };
-
-  if (trimmed && trimmed !== "main" && !warnState.warned) {
-    warnState.warned = true;
-    warn('session.mainKey is ignored; main session is always "main".');
-  }
-
-  return next;
+  return cfg;
 }
 
 export function applyTalkApiKey(config: OpenClawConfig): OpenClawConfig {
@@ -529,8 +508,4 @@ export function applyCompactionDefaults(cfg: OpenClawConfig): OpenClawConfig {
       },
     },
   };
-}
-
-export function resetSessionDefaultsWarningForTests() {
-  defaultWarnState = { warned: false };
 }
