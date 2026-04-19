@@ -6,6 +6,7 @@ import {
   resolveIngressWorkspaceOverrideForSpawnedRun,
 } from "../../agents/spawned-context.js";
 import { buildBareSessionResetPrompt } from "../../auto-reply/reply/session-reset-prompt.js";
+import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
 import { agentCommandFromIngress } from "../../commands/agent.js";
 import { loadConfig } from "../../config/config.js";
 import {
@@ -298,6 +299,9 @@ export const agentHandlers: GatewayRequestHandlers = {
       .filter((value): value is string => typeof value === "string")
       .map((value) => value.trim())
       .filter(Boolean);
+    const requestedLastChannel = channelHints.some(
+      (value) => normalizeMessageChannel(value) === "last",
+    );
     for (const rawChannel of channelHints) {
       const normalized = normalizeMessageChannel(rawChannel);
       if (normalized && normalized !== "last" && !isKnownGatewayChannel(normalized)) {
@@ -569,7 +573,7 @@ export const agentHandlers: GatewayRequestHandlers = {
     let resolvedTo = deliveryPlan.resolvedTo;
     let effectivePlan = deliveryPlan;
 
-    if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL) {
+    if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL && !requestedLastChannel) {
       const cfgResolved = cfgForAgent ?? cfg;
       try {
         const selection = await resolveMessageChannelSelection({ cfg: cfgResolved });
@@ -600,13 +604,28 @@ export const agentHandlers: GatewayRequestHandlers = {
       }
     }
 
+    if (wantsDelivery && requestedLastChannel && isDeliverableMessageChannel(resolvedChannel)) {
+      const outbound = await loadChannelOutboundAdapter(resolvedChannel);
+      if (!outbound) {
+        respond(
+          false,
+          undefined,
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            "Channel is required: the previous channel is not currently deliverable.",
+          ),
+        );
+        return;
+      }
+    }
+
     if (wantsDelivery && resolvedChannel === INTERNAL_MESSAGE_CHANNEL) {
       respond(
         false,
         undefined,
         errorShape(
           ErrorCodes.INVALID_REQUEST,
-          "delivery channel is required: pass --channel/--reply-channel or use a main session with a previous channel",
+          "Channel is required: pass --channel/--reply-channel or use a main session with a previous channel.",
         ),
       );
       return;

@@ -108,8 +108,8 @@ async function runGatewayHealthCheck(params: {
     note(
       [
         "Docs:",
-        "https://docs.openclaw.ai/gateway/health",
-        "https://docs.openclaw.ai/gateway/troubleshooting",
+        "https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/health",
+        "https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/troubleshooting",
       ].join("\n"),
       "Health check help",
     );
@@ -196,7 +196,7 @@ async function promptWebToolsConfig(
     [
       "Web search lets your agent look things up online using the `web_search` tool.",
       "Choose a provider and paste your API key.",
-      "Docs: https://docs.openclaw.ai/tools/web",
+      "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
     ].join("\n"),
     "Web search",
   );
@@ -222,7 +222,7 @@ async function promptWebToolsConfig(
         [
           "No web search providers are currently available under this plugin policy.",
           "Enable plugins or remove deny rules, then rerun configure.",
-          "Docs: https://docs.openclaw.ai/tools/web",
+          "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
         ].join("\n"),
         "Web search",
       );
@@ -286,7 +286,7 @@ async function promptWebToolsConfig(
             "No key stored yet — web_search won't work until a key is available.",
             `Store your ${credentialLabel} here or set ${envVarNames} in the Gateway environment.`,
             `Get your API key at: ${entry.signupUrl}`,
-            "Docs: https://docs.openclaw.ai/tools/web",
+            "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/web",
           ].join("\n"),
           "Web search",
         );
@@ -339,7 +339,7 @@ export async function runConfigureWizard(
           [
             ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
             "",
-            "Docs: https://docs.openclaw.ai/gateway/configuration",
+            "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/configuration",
           ].join("\n"),
           "Config issues",
         );
@@ -705,7 +705,7 @@ export async function runConfigureWizard(
         `Web UI: ${links.httpUrl}`,
         `Gateway WS: ${links.wsUrl}`,
         gatewayStatusLine,
-        "Docs: https://docs.openclaw.ai/web/control-ui",
+        "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/web/control-ui",
       ].join("\n"),
       "Control UI",
     );

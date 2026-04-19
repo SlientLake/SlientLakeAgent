@@ -370,7 +370,9 @@ export async function getPendingDevicePairing(
 }
 
 export async function requestDevicePairing(
-  req: Omit<DevicePairingPendingRequest, "requestId" | "ts" | "isRepair">,
+  req: Omit<DevicePairingPendingRequest, "requestId" | "ts" | "isRepair"> & {
+    mergeWithExisting?: boolean;
+  },
   baseDir?: string,
 ): Promise<{
   status: "pending";
@@ -388,6 +390,7 @@ export async function requestDevicePairing(
       .filter((pending) => pending.deviceId === deviceId)
       .toSorted((left, right) => right.ts - left.ts);
     const latestPending = pendingForDevice[0];
+    const mergeWithExisting = req.mergeWithExisting === true;
     if (latestPending && pendingForDevice.length === 1) {
       if (samePendingApprovalSnapshot(latestPending, req)) {
         const refreshed = refreshPendingDevicePairingRequest(latestPending, req, isRepair);
@@ -400,11 +403,24 @@ export async function requestDevicePairing(
       for (const pending of pendingForDevice) {
         delete state.pendingById[pending.requestId];
       }
+      const mergedPendingRoles = mergeRoles(
+        ...pendingForDevice.map((pending) => pending.roles),
+        ...pendingForDevice.map((pending) => pending.role),
+      );
+      const mergedPendingScopes = mergeScopes(...pendingForDevice.map((pending) => pending.scopes));
+      const requestedRoles = mergeRoles(
+        mergeWithExisting ? mergedPendingRoles : undefined,
+        req.roles,
+        req.role,
+      );
       const superseded = buildPendingDevicePairingRequest({
         deviceId,
         isRepair,
         req: {
           ...req,
+          roles: requestedRoles,
+          role: normalizeRole(req.role) ?? requestedRoles?.[0],
+          scopes: mergeScopes(mergeWithExisting ? mergedPendingScopes : undefined, req.scopes),
           // Preserve interactive visibility when superseding pending requests:
           // if any previous pending request was interactive, keep this one interactive.
           silent: resolveSupersededPendingSilent({

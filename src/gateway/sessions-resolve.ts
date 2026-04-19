@@ -8,6 +8,7 @@ import {
   type SessionsResolveParams,
 } from "./protocol/index.js";
 import {
+  findSessionEntryByStoreKeys,
   listSessionsFromStore,
   loadCombinedSessionStoreForGateway,
   migrateAndPruneGatewaySessionStoreKey,
@@ -47,10 +48,11 @@ export async function resolveSessionKeyFromResolveParams(params: {
   if (hasKey) {
     const target = resolveGatewaySessionStoreTarget({ cfg, key });
     const store = loadSessionStore(target.storePath);
-    if (store[target.canonicalKey]) {
+    const matched = findSessionEntryByStoreKeys(store, target.storeKeys);
+    if (matched?.entry && matched.key === target.canonicalKey) {
       return { ok: true, key: target.canonicalKey };
     }
-    const legacyKey = target.storeKeys.find((candidate) => store[candidate]);
+    const legacyKey = matched?.key;
     if (!legacyKey) {
       return {
         ok: false,

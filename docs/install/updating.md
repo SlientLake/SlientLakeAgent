@@ -39,11 +39,11 @@ Add `--no-onboard` to skip onboarding. For source installs, pass `--install-meth
 ## Alternative: manual npm or pnpm
 
 ```bash
-npm i -g openclaw@latest
+npm i -g silentlake@latest
 ```
 
 ```bash
-pnpm add -g openclaw@latest
+pnpm add -g silentlake@latest
 ```
 
 ## Auto-updater
