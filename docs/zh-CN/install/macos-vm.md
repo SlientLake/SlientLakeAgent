@@ -144,7 +144,7 @@ ssh youruser@192.168.64.X
 在 VM 内：
 
 ```bash
-npm install -g openclaw@latest
+npm install -g silentlake@latest
 openclaw onboard --install-daemon
 ```
 

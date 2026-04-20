@@ -96,7 +96,7 @@ Details:
   Source: openclaw-bundled
   Path: /path/to/openclaw/hooks/bundled/session-memory/HOOK.md
   Handler: /path/to/openclaw/hooks/bundled/session-memory/handler.ts
-  Homepage: https://docs.openclaw.ai/automation/hooks#session-memory
+  Homepage: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/automation/hooks#session-memory
   Events: command:new
 
 Requirements:

@@ -48,7 +48,7 @@ type PackageManifest = PluginPackageManifest & {
 };
 
 const MISSING_EXTENSIONS_ERROR =
-  'package.json missing openclaw.extensions; update the plugin package to include openclaw.extensions (for example ["./dist/index.js"]). See https://docs.openclaw.ai/help/troubleshooting#plugin-install-fails-with-missing-openclaw-extensions';
+  'package.json missing openclaw.extensions; update the plugin package to include openclaw.extensions (for example ["./dist/index.js"]). See https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/help/troubleshooting#plugin-install-fails-with-missing-openclaw-extensions';
 
 export const PLUGIN_INSTALL_ERROR_CODE = {
   INVALID_NPM_SPEC: "invalid_npm_spec",

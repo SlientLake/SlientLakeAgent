@@ -83,6 +83,14 @@ let loadPromise: Promise<void> | null = null;
 let configuredConfig: OpenClawConfig | undefined;
 let configLoadFailures = 0;
 let nextConfigLoadAttemptAtMs = 0;
+
+export function resetContextWindowCacheForTest() {
+  loadPromise = null;
+  configuredConfig = undefined;
+  configLoadFailures = 0;
+  nextConfigLoadAttemptAtMs = 0;
+  MODEL_CONTEXT_TOKEN_CACHE.clear();
+}
 let modelsConfigRuntimePromise: Promise<typeof import("./models-config.runtime.js")> | undefined;
 
 function loadModelsConfigRuntime() {

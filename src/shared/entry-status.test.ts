@@ -37,7 +37,7 @@ describe("shared/entry-status", () => {
       },
       frontmatter: {
         emoji: "🙂",
-        homepage: "https://docs.openclaw.ai",
+        homepage: "https://github.com/SlientLake/SlientLakeAgent/tree/main/docs",
       },
       hasLocalBin: (bin) => bin === "bun",
       localPlatform: "linux",
@@ -99,7 +99,7 @@ describe("shared/entry-status", () => {
           },
         },
         frontmatter: {
-          website: " https://docs.openclaw.ai ",
+          website: " https://github.com/SlientLake/SlientLakeAgent/tree/main/docs ",
           emoji: "🙂",
         },
       },
@@ -110,7 +110,7 @@ describe("shared/entry-status", () => {
 
     expect(result).toEqual({
       emoji: "🙂",
-      homepage: "https://docs.openclaw.ai",
+      homepage: "https://github.com/SlientLake/SlientLakeAgent/tree/main/docs",
       required: {
         bins: ["missing-bin"],
         anyBins: [],

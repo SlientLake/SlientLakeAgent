@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { type WebSocket, WebSocketServer } from "ws";
 import { SsrFBlockedError } from "../infra/net/ssrf.js";
 import { rawDataToString } from "../infra/ws.js";
+import { mockPinnedHostnameResolution } from "../test-helpers/ssrf.js";
 import { isWebSocketUrl } from "./cdp.helpers.js";
 import { createTargetViaCdp, evaluateJavaScript, normalizeCdpWsUrl, snapshotAria } from "./cdp.js";
 import { parseHttpUrl } from "./config.js";
@@ -11,6 +12,7 @@ import { InvalidBrowserNavigationUrlError } from "./navigation-guard.js";
 describe("cdp", () => {
   let httpServer: ReturnType<typeof createServer> | null = null;
   let wsServer: WebSocketServer | null = null;
+  mockPinnedHostnameResolution();
 
   const startWsServer = async () => {
     wsServer = new WebSocketServer({ port: 0, host: "127.0.0.1" });

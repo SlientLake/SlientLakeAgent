@@ -1,7 +1,7 @@
-# 🌊 SilentLake — 多 Agent 协作平台
+# SILENTLAKE
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/SlientLake/SlientLakeAgent/main/assets/silentlake-banner.png" alt="SilentLake" width="560">
+  <img src="./assets/silentlake-wordmark.svg" alt="SILENTLAKE" width="860">
 </p>
 
 <p align="center">
@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/基于-OpenClaw-ff6b35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyeiIvPjwvc3ZnPg==" alt="Based on OpenClaw">
-  <img src="https://img.shields.io/badge/版本-v2.0-4fc3f7?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/SilentLake-Control%20UI-2563eb?style=for-the-badge" alt="SilentLake Control UI">
+  <img src="https://img.shields.io/badge/版本-3.0.0-4fc3f7?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/npm-silentlake-cb3837?style=for-the-badge&logo=npm&logoColor=white" alt="npm silentlake">
   <img src="https://img.shields.io/badge/Node-22%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node 22+">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+">
@@ -24,6 +24,41 @@
 在 OpenClaw 单助手能力的基础上，SilentLake 构建了一套 **9 Agent 多级组织架构**：总指挥统筹全局，各职能 Agent 分工协作，通过实时 A2A 消息通道、拓扑可视化和知识库共享，形成一个完整的 AI 团队。
 
 > 如果说 OpenClaw 是"你的个人 AI 助手"，SilentLake 就是"你的 AI 团队"。
+
+---
+
+## 工程结构
+
+为避免根目录堆放大量说明文件，同时又不破坏 `npm`、`pnpm`、GitHub Actions、打包和测试入口，仓库采用“**根目录保留运行契约 + 标准目录承载治理与索引**”的结构：
+
+- 根目录继续保留运行与发布关键文件：
+  `package.json`、`pnpm-lock.yaml`、`tsconfig*`、`vitest*`、`Dockerfile*`、`openclaw.mjs`
+- 标准治理目录：
+  - `设计`
+  - `前端`
+  - `后端`
+  - `AI Agent`
+  - `SKILLS`
+  - `计算引擎`
+  - `需求分析`
+  - `代码仓`
+- 这些目录主要承担：
+  - 文档归档
+  - 职责划分
+  - 结构索引
+  - 协作约束
+- 现有源码主体仍然以根目录下的 `src/`、`ui/`、`test/`、`scripts/`、`extensions/`、`packages/`、`platform/` 为真实运行入口，标准目录通过说明文件和结构映射指向这些资产
+
+建议按下面路径理解工程：
+
+- 产品与视觉设计：`设计/`
+- 前端资产与界面入口：`前端/`
+- 后端核心代码与测试：`后端/`
+- Agent 能力、扩展与 ACP 相关：`AI Agent/`
+- 技能体系与复用资产：`SKILLS/`
+- 运行平台与计算支撑：`计算引擎/`
+- 需求、验收与问题分析：`需求分析/`
+- 全量代码资产总索引：`代码仓/`
 
 ---
 
@@ -52,12 +87,12 @@
 
 | 功能                   | 说明                                                         |
 | ---------------------- | ------------------------------------------------------------ |
-| **聊天室**             | 飞书风格多房间聊天，支持 @mention Agent、实时 WebSocket 推送 |
-| **组织拓扑图**         | SVG 力导向图，可视化 9 Agent 层级与协作关系，可拖拽节点      |
-| **MCP 管理**           | 查看已注册 MCP Server，按 category 分组，一键启用/禁用       |
-| **知识库管理**         | 创建/删除知识库，支持 vector/doc/graph 多种类型              |
-| **per-Agent 模型配置** | 每个 Agent 独立选择主模型和 fallback 模型                    |
-| **zh-CN 完整翻译**     | 全 UI 中英双语，默认中文，语言选择器随时切换                 |
+| **React + Tailwind 控制台** | React 主入口已完全接管运行面，旧 Lit 控制台归档到 `ui/legacy/` |
+| **任务看板 / 任务链**  | 看板列视图 + 详情链路，支持状态历史、聊天室消息挂接、协作记录与汇报沉淀 |
+| **聊天室**             | 多房间协作聊天，支持实时 WebSocket 推送与上下文沉淀         |
+| **组织拓扑图**         | 可视化 9 Agent 层级与协作关系，面向管理视角做信息聚合       |
+| **MCP 注册中心**       | 注册、编辑、删除、启停、健康检查、依赖关系、授权和启用范围统一管理 |
+| **知识库能力**         | 保留现有工作台能力，本轮不继续扩展，后续再单独推进增强 |
 
 ### ⌨️ CLI 命令
 
@@ -239,7 +274,7 @@ export OPENCLAW_LANG=zh-CN
 
 SilentLake 基于 [OpenClaw](https://github.com/openclaw/openclaw) 构建，保留全部上游能力（多渠道消息、插件体系、模型切换等）。
 
-上游文档：[docs.openclaw.ai](https://docs.openclaw.ai)
+上游文档：[github.com/SlientLake/SlientLakeAgent/tree/main/docs](https://github.com/SlientLake/SlientLakeAgent/tree/main/docs)
 
 ---
 

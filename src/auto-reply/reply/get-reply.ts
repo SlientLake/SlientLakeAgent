@@ -10,6 +10,7 @@ import { DEFAULT_AGENT_WORKSPACE_DIR, ensureAgentWorkspace } from "../../agents/
 import { resolveChannelModelOverride } from "../../channels/model-overrides.js";
 import { type OpenClawConfig, loadConfig } from "../../config/config.js";
 import { defaultRuntime } from "../../runtime.js";
+import { resolveGlobalSingleton } from "../../shared/global-singleton.js";
 import { normalizeStringEntries } from "../../shared/string-normalization.js";
 import { resolveCommandAuthorization } from "../command-auth.js";
 import type { MsgContext } from "../templating.js";
@@ -28,6 +29,22 @@ import { createTypingController } from "./typing.js";
 
 function shouldLogCoreIngressTiming(): boolean {
   return process.env.OPENCLAW_DEBUG_INGRESS_TIMING === "1";
+}
+
+type GetReplyFromConfigTestHook = (
+  ctx: MsgContext,
+  opts?: GetReplyOptions,
+  configOverride?: OpenClawConfig,
+) => Promise<ReplyPayload | ReplyPayload[] | undefined>;
+
+const GET_REPLY_FROM_CONFIG_TEST_HOOK_KEY = Symbol.for("openclaw.getReplyFromConfigTestHook");
+const getReplyFromConfigTestHook = resolveGlobalSingleton(
+  GET_REPLY_FROM_CONFIG_TEST_HOOK_KEY,
+  () => ({ value: null as GetReplyFromConfigTestHook | null }),
+);
+
+export function setGetReplyFromConfigTestHookForTest(hook: GetReplyFromConfigTestHook | null) {
+  getReplyFromConfigTestHook.value = hook;
 }
 
 type ResetCommandAction = "new" | "reset";
@@ -108,6 +125,9 @@ export async function getReplyFromConfig(
   opts?: GetReplyOptions,
   configOverride?: OpenClawConfig,
 ): Promise<ReplyPayload | ReplyPayload[] | undefined> {
+  if (getReplyFromConfigTestHook.value) {
+    return await getReplyFromConfigTestHook.value(ctx, opts, configOverride);
+  }
   const ingressTimingEnabled = shouldLogCoreIngressTiming();
   const ingressStartMs = ingressTimingEnabled ? Date.now() : 0;
   const logIngressStage = (stage: string, extra?: string) => {

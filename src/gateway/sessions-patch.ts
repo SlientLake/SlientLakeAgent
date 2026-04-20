@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { ModelCatalogEntry } from "../agents/model-catalog.js";
 import {
+  buildConfiguredModelCatalog,
   resolveAllowedModelRef,
   resolveDefaultModelForAgent,
   resolveSubagentConfiguredModelSelection,
@@ -389,20 +390,27 @@ export async function applySessionsPatchToStore(params: {
       if (!trimmed) {
         return invalid("invalid model: empty");
       }
-      if (!params.loadGatewayModelCatalog) {
-        return {
-          ok: false,
-          error: errorShape(ErrorCodes.UNAVAILABLE, "model catalog unavailable"),
-        };
+      const resolveAgainstCatalog = (catalog: ModelCatalogEntry[]) =>
+        resolveAllowedModelRef({
+          cfg,
+          catalog,
+          raw: trimmed,
+          defaultProvider: resolvedDefault.provider,
+          defaultModel: subagentModelHint ?? resolvedDefault.model,
+        });
+      const configuredCatalog = buildConfiguredModelCatalog({ cfg });
+      let resolved =
+        configuredCatalog.length > 0 ? resolveAgainstCatalog(configuredCatalog) : undefined;
+      if (!resolved || "error" in resolved) {
+        if (!params.loadGatewayModelCatalog) {
+          return {
+            ok: false,
+            error: errorShape(ErrorCodes.UNAVAILABLE, "model catalog unavailable"),
+          };
+        }
+        const catalog = await params.loadGatewayModelCatalog();
+        resolved = resolveAgainstCatalog(catalog);
       }
-      const catalog = await params.loadGatewayModelCatalog();
-      const resolved = resolveAllowedModelRef({
-        cfg,
-        catalog,
-        raw: trimmed,
-        defaultProvider: resolvedDefault.provider,
-        defaultModel: subagentModelHint ?? resolvedDefault.model,
-      });
       if ("error" in resolved) {
         return invalid(resolved.error);
       }

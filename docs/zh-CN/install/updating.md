@@ -33,7 +33,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
   curl -fsSL https://openclaw.ai/install.sh | bash -s -- --install-method git --no-onboard
   ```
   安装程序**仅**在仓库干净时才会执行 `git pull --rebase`。
-- 对于**全局安装**，脚本底层使用 `npm install -g openclaw@latest`。
+- 对于**全局安装**，脚本底层使用 `npm install -g silentlake@latest`。
 - 旧版说明：`clawdbot` 仍可作为兼容性垫片使用。
 
 ## 更新之前
@@ -50,11 +50,11 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 全局安装（选择一个）：
 
 ```bash
-npm i -g openclaw@latest
+npm i -g silentlake@latest
 ```
 
 ```bash
-pnpm add -g openclaw@latest
+pnpm add -g silentlake@latest
 ```
 
 我们**不**推荐将 Bun 用于 Gateway 网关运行时（WhatsApp/Telegram 有 bug）。

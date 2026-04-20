@@ -159,7 +159,11 @@ export function registerAuthModesSuite(): void {
 
     test("allows shared token to skip device when tailscale auth is enabled", async () => {
       const ws = await openTailscaleWs(port);
-      const res = await connectReq(ws, { token: "secret", device: null });
+      const res = await connectReq(ws, {
+        token: "secret",
+        device: null,
+        scopes: ["operator.admin"],
+      });
       expect(res.ok).toBe(true);
       const status = await rpcReq(ws, "status");
       expect(status.ok).toBe(true);

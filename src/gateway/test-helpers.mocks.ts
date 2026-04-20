@@ -572,6 +572,42 @@ vi.mock("../agents/pi-embedded.js", async () => {
   };
 });
 
+vi.mock("../agents/pi-embedded-runner.js", async () => {
+  const actual = await vi.importActual<typeof import("../agents/pi-embedded-runner.js")>(
+    "../agents/pi-embedded-runner.js",
+  );
+  return {
+    ...actual,
+    isEmbeddedPiRunActive: (sessionId: string) => embeddedRunMock.activeIds.has(sessionId),
+    abortEmbeddedPiRun: (sessionId: string) => {
+      embeddedRunMock.abortCalls.push(sessionId);
+      return embeddedRunMock.activeIds.has(sessionId);
+    },
+    waitForEmbeddedPiRunEnd: async (sessionId: string) => {
+      embeddedRunMock.waitCalls.push(sessionId);
+      return embeddedRunMock.waitResults.get(sessionId) ?? true;
+    },
+  };
+});
+
+vi.mock("../agents/pi-embedded-runner/runs.js", async () => {
+  const actual = await vi.importActual<typeof import("../agents/pi-embedded-runner/runs.js")>(
+    "../agents/pi-embedded-runner/runs.js",
+  );
+  return {
+    ...actual,
+    isEmbeddedPiRunActive: (sessionId: string) => embeddedRunMock.activeIds.has(sessionId),
+    abortEmbeddedPiRun: (sessionId: string) => {
+      embeddedRunMock.abortCalls.push(sessionId);
+      return embeddedRunMock.activeIds.has(sessionId);
+    },
+    waitForEmbeddedPiRunEnd: async (sessionId: string) => {
+      embeddedRunMock.waitCalls.push(sessionId);
+      return embeddedRunMock.waitResults.get(sessionId) ?? true;
+    },
+  };
+});
+
 vi.mock("../commands/health.js", () => ({
   getHealthSnapshot: vi.fn().mockResolvedValue({ ok: true, stub: true }),
 }));
@@ -604,13 +640,16 @@ vi.mock("../auto-reply/reply.js", () => ({
 }));
 vi.mock("../cli/deps.js", async () => {
   const actual = await vi.importActual<typeof import("../cli/deps.js")>("../cli/deps.js");
+  const sendWhatsApp = (...args: unknown[]) =>
+    (hoisted.sendWhatsAppMock as (...args: unknown[]) => unknown)(...args);
   const base = actual.createDefaultDeps();
   return {
     ...actual,
     createDefaultDeps: () => ({
       ...base,
-      sendMessageWhatsApp: (...args: unknown[]) =>
-        (hoisted.sendWhatsAppMock as (...args: unknown[]) => unknown)(...args),
+      whatsapp: sendWhatsApp,
+      sendWhatsApp,
+      sendMessageWhatsApp: sendWhatsApp,
     }),
   };
 });
