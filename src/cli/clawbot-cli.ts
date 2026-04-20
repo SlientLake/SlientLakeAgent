@@ -10,7 +10,7 @@ export function registerClawbotCli(program: Command) {
     .addHelpText(
       "after",
       () =>
-        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/clawbot", "docs.openclaw.ai/cli/clawbot")}\n`,
+        `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/clawbot", "github.com/SlientLake/SlientLakeAgent/tree/main/docs/cli/clawbot")}\n`,
     );
   registerQrCli(clawbot);
 }

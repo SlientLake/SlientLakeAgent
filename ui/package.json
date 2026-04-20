@@ -1,5 +1,5 @@
 {
-  "name": "openclaw-control-ui",
+  "name": "silentlake-control-ui",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,14 +10,25 @@
   },
   "dependencies": {
     "@noble/ed25519": "3.0.1",
+    "clsx": "^2.1.1",
     "dompurify": "^3.3.3",
-    "lit": "^3.3.2",
-    "marked": "^17.0.4"
+    "lucide-react": "^0.554.0",
+    "marked": "^17.0.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.0.4",
     "@vitest/browser-playwright": "4.1.0",
+    "autoprefixer": "^10.4.21",
     "jsdom": "^29.0.0",
     "playwright": "^1.58.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "vite": "8.0.0",
     "vitest": "4.1.0"
   }

@@ -79,6 +79,7 @@ import { loadModelCatalog } from "./model-catalog.js";
 import { runWithModelFallback } from "./model-fallback.js";
 import {
   buildAllowedModelSet,
+  buildConfiguredModelCatalog,
   isCliProvider,
   modelKey,
   normalizeModelRef,
@@ -938,7 +939,8 @@ async function agentCommandInternal(
     }
 
     // Persist explicit /command overrides to the session store when we have a key.
-    if (sessionStore && sessionKey) {
+    const shouldPersistCommandOverrides = Boolean(thinkOverride) || verboseOverride !== undefined;
+    if (sessionStore && sessionKey && shouldPersistCommandOverrides) {
       const entry = sessionStore[sessionKey] ??
         sessionEntry ?? { sessionId, updatedAt: Date.now() };
       const next: SessionEntry = { ...entry, sessionId, updatedAt: Date.now() };
@@ -981,6 +983,8 @@ async function agentCommandInternal(
     if (hasExplicitRunOverride && opts.allowModelOverride !== true) {
       throw new Error("Model override is not authorized for this caller.");
     }
+    const storedProviderOverride = sessionEntry?.providerOverride?.trim();
+    const storedModelOverride = sessionEntry?.modelOverride?.trim();
     const needsModelCatalog = hasAllowlist || hasStoredOverride || hasExplicitRunOverride;
     let allowedModelKeys = new Set<string>();
     let allowedModelCatalog: Awaited<ReturnType<typeof loadModelCatalog>> = [];
@@ -988,23 +992,48 @@ async function agentCommandInternal(
     let allowAnyModel = false;
 
     if (needsModelCatalog) {
-      modelCatalog = await loadModelCatalog({ config: cfg });
-      const allowed = buildAllowedModelSet({
-        cfg,
-        catalog: modelCatalog,
-        defaultProvider,
-        defaultModel,
-        agentId: sessionAgentId,
-      });
-      allowedModelKeys = allowed.allowedKeys;
-      allowedModelCatalog = allowed.allowedCatalog;
-      allowAnyModel = allowed.allowAny ?? false;
+      const configuredCatalog = buildConfiguredModelCatalog({ cfg });
+      const applyAllowedCatalog = (catalog: Awaited<ReturnType<typeof loadModelCatalog>>) => {
+        const allowed = buildAllowedModelSet({
+          cfg,
+          catalog,
+          defaultProvider,
+          defaultModel,
+          agentId: sessionAgentId,
+        });
+        allowedModelKeys = allowed.allowedKeys;
+        allowedModelCatalog = allowed.allowedCatalog;
+        allowAnyModel = allowed.allowAny ?? false;
+      };
+      applyAllowedCatalog(configuredCatalog);
+
+      const explicitRef = explicitModelOverride
+        ? normalizeModelRef(explicitProviderOverride || defaultProvider, explicitModelOverride)
+        : null;
+      const storedRef = storedModelOverride
+        ? normalizeModelRef(storedProviderOverride || defaultProvider, storedModelOverride)
+        : null;
+      const needsLiveCatalog =
+        configuredCatalog.length === 0 ||
+        (explicitRef !== null &&
+          !isCliProvider(explicitRef.provider, cfg) &&
+          !allowAnyModel &&
+          !allowedModelKeys.has(modelKey(explicitRef.provider, explicitRef.model))) ||
+        (storedRef !== null &&
+          !isCliProvider(storedRef.provider, cfg) &&
+          !allowAnyModel &&
+          !allowedModelKeys.has(modelKey(storedRef.provider, storedRef.model)));
+
+      if (needsLiveCatalog) {
+        modelCatalog = await loadModelCatalog({ config: cfg });
+        applyAllowedCatalog(modelCatalog);
+      }
     }
 
     if (sessionEntry && sessionStore && sessionKey && hasStoredOverride) {
       const entry = sessionEntry;
-      const overrideProvider = sessionEntry.providerOverride?.trim() || defaultProvider;
-      const overrideModel = sessionEntry.modelOverride?.trim();
+      const overrideProvider = storedProviderOverride || defaultProvider;
+      const overrideModel = storedModelOverride;
       if (overrideModel) {
         const normalizedOverride = normalizeModelRef(overrideProvider, overrideModel);
         const key = modelKey(normalizedOverride.provider, normalizedOverride.model);
@@ -1029,8 +1058,6 @@ async function agentCommandInternal(
       }
     }
 
-    const storedProviderOverride = sessionEntry?.providerOverride?.trim();
-    const storedModelOverride = sessionEntry?.modelOverride?.trim();
     if (storedModelOverride) {
       const candidateProvider = storedProviderOverride || defaultProvider;
       const normalizedStored = normalizeModelRef(candidateProvider, storedModelOverride);
@@ -1091,8 +1118,13 @@ async function agentCommandInternal(
     if (!resolvedThinkLevel) {
       let catalogForThinking = modelCatalog ?? allowedModelCatalog;
       if (!catalogForThinking || catalogForThinking.length === 0) {
-        modelCatalog = await loadModelCatalog({ config: cfg });
-        catalogForThinking = modelCatalog;
+        const configuredCatalog = buildConfiguredModelCatalog({ cfg });
+        if (configuredCatalog.length > 0) {
+          catalogForThinking = configuredCatalog;
+        } else {
+          modelCatalog = await loadModelCatalog({ config: cfg });
+          catalogForThinking = modelCatalog;
+        }
       }
       resolvedThinkLevel = resolveThinkingDefault({
         cfg,

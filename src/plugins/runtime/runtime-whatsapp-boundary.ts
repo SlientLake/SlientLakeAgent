@@ -10,6 +10,7 @@ import {
   optimizeImageToJpeg as optimizeImageToJpegImpl,
 } from "../../media/web-media.js";
 import { loadPluginManifestRegistry } from "../manifest-registry.js";
+import { getActivePluginRegistry } from "../runtime.js";
 import {
   buildPluginLoaderJitiOptions,
   resolvePluginSdkAliasFile,
@@ -44,6 +45,15 @@ function readConfigSafely() {
 }
 
 function resolveWhatsAppPluginRecord(): WhatsAppPluginRecord {
+  const activeRegistry = getActivePluginRegistry();
+  const activeRecord = activeRegistry?.plugins.find((plugin) => plugin.id === WHATSAPP_PLUGIN_ID);
+  if (activeRecord?.source) {
+    return {
+      origin: activeRecord.origin,
+      rootDir: activeRecord.rootDir,
+      source: activeRecord.source,
+    };
+  }
   const manifestRegistry = loadPluginManifestRegistry({
     config: readConfigSafely(),
     cache: true,

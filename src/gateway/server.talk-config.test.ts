@@ -293,7 +293,17 @@ describe("gateway talk.config", () => {
       });
 
       expect(fetchMock).toHaveBeenCalled();
-      const requestInit = requestInits.find((init) => typeof init.body === "string");
+      const requestInit = requestInits.find((init) => {
+        if (typeof init.body !== "string") {
+          return false;
+        }
+        try {
+          const body = JSON.parse(init.body) as Record<string, unknown>;
+          return body.input === "Hello from talk mode.";
+        } catch {
+          return false;
+        }
+      });
       expect(requestInit).toBeDefined();
       const body = JSON.parse(requestInit?.body as string) as Record<string, unknown>;
       expect(body.model).toBe("tts-1");
