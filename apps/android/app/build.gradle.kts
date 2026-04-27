@@ -182,7 +182,7 @@ ktlint {
 }
 
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2026.03.01")
+    val composeBom = platform("androidx.compose:compose-bom:2026.04.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -204,12 +204,12 @@ dependencies {
     implementation("com.google.android.material:material:1.13.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation("androidx.security:security-crypto:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation("com.squareup.okhttp3:okhttp:5.3.2")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
     implementation("org.commonmark:commonmark:0.28.0")
     implementation("org.commonmark:commonmark-ext-autolink:0.28.0")
     implementation("org.commonmark:commonmark-ext-gfm-strikethrough:0.28.0")
@@ -228,8 +228,8 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.10")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:6.1.10")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.11")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:6.1.11")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
     testImplementation("org.robolectric:robolectric:4.16.1")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:6.0.3")
