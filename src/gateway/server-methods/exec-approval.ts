@@ -19,6 +19,16 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 
+function canRequesterHoldApprovalOpen(
+  client: Parameters<GatewayRequestHandlers["exec.approval.request"]>[0]["client"],
+): boolean {
+  const scopes = Array.isArray(client?.connect?.scopes) ? client.connect.scopes : [];
+  if (scopes.includes("operator.admin") || scopes.includes("operator.approvals")) {
+    return true;
+  }
+  return client?.connect?.role === "operator" && scopes.includes("operator.write");
+}
+
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,
   opts?: { forwarder?: ExecApprovalForwarder },
@@ -198,7 +208,7 @@ export function createExecApprovalHandlers(
         }
       }
 
-      if (!hasExecApprovalClients && !forwarded) {
+      if (!hasExecApprovalClients && !forwarded && !canRequesterHoldApprovalOpen(client)) {
         manager.expire(record.id, "no-approval-route");
         respond(
           true,

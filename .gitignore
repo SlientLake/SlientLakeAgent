@@ -69,6 +69,8 @@ web_modules/
 .env
 .env.*
 !.env.example
+ui/.vitest-attachments/
+ui/src/ui/views/__screenshots__/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

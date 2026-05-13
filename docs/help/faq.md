@@ -264,9 +264,9 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
 
   </Accordion>
 
-  <Accordion title="Cannot access docs.openclaw.ai (SSL error)">
-    Some Comcast/Xfinity connections incorrectly block `docs.openclaw.ai` via Xfinity
-    Advanced Security. Disable it or allowlist `docs.openclaw.ai`, then retry. More
+  <Accordion title="Cannot access github.com/SlientLake/SlientLakeAgent/tree/main/docs (SSL error)">
+    Some Comcast/Xfinity connections incorrectly block `github.com/SlientLake/SlientLakeAgent/tree/main/docs` via Xfinity
+    Advanced Security. Disable it or allowlist `github.com/SlientLake/SlientLakeAgent/tree/main/docs`, then retry. More
     detail: [Troubleshooting](/help/faq#docsopenclawai-shows-an-ssl-error-comcast-xfinity).
     Please help us unblock it by reporting here: [https://spa.xfinity.com/check_url_status](https://spa.xfinity.com/check_url_status).
 
@@ -757,7 +757,7 @@ Quick answers plus deeper troubleshooting for real-world setups (local dev, VPS,
     From git to npm:
 
     ```bash
-    npm install -g openclaw@latest
+    npm install -g silentlake@latest
     openclaw doctor
     openclaw gateway restart
     ```

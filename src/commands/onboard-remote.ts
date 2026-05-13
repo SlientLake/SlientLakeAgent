@@ -72,7 +72,7 @@ export async function promptRemoteGatewayConfig(
     await prompter.note(
       [
         "Bonjour discovery requires dns-sd (macOS) or avahi-browse (Linux).",
-        "Docs: https://docs.openclaw.ai/gateway/discovery",
+        "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/discovery",
       ].join("\n"),
       "Discovery",
     );
@@ -136,7 +136,7 @@ export async function promptRemoteGatewayConfig(
             `ssh -N -L 18789:127.0.0.1:18789 <user>@${host}${
               selectedBeacon.sshPort ? ` -p ${selectedBeacon.sshPort}` : ""
             }`,
-            "Docs: https://docs.openclaw.ai/gateway/remote",
+            "Docs: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/gateway/remote",
           ].join("\n"),
           "SSH tunnel",
         );

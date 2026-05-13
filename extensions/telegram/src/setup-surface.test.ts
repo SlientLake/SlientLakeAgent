@@ -105,11 +105,13 @@ describe("telegramSetupWizard.finalize", () => {
     );
 
     expect(note).toHaveBeenCalledWith(
-      expect.stringContaining('openclaw config set channels.telegram.dmPolicy "allowlist"'),
+      expect.stringContaining('silentlake config set channels.telegram.dmPolicy "allowlist"'),
       "Telegram DM access warning",
     );
     expect(note).toHaveBeenCalledWith(
-      expect.stringContaining(`openclaw config set channels.telegram.allowFrom '["YOUR_USER_ID"]'`),
+      expect.stringContaining(
+        `silentlake config set channels.telegram.allowFrom '["YOUR_USER_ID"]'`,
+      ),
       "Telegram DM access warning",
     );
   });
@@ -132,13 +134,13 @@ describe("telegramSetupWizard.finalize", () => {
 
     expect(note).toHaveBeenCalledWith(
       expect.stringContaining(
-        'openclaw config set channels.telegram.accounts.alerts.dmPolicy "allowlist"',
+        'silentlake config set channels.telegram.accounts.alerts.dmPolicy "allowlist"',
       ),
       "Telegram DM access warning",
     );
     expect(note).toHaveBeenCalledWith(
       expect.stringContaining(
-        `openclaw config set channels.telegram.accounts.alerts.allowFrom '["YOUR_USER_ID"]'`,
+        `silentlake config set channels.telegram.accounts.alerts.allowFrom '["YOUR_USER_ID"]'`,
       ),
       "Telegram DM access warning",
     );

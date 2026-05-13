@@ -7,7 +7,7 @@ import {
   abortEmbeddedPiRun,
   isEmbeddedPiRunActive,
   waitForEmbeddedPiRunEnd,
-} from "../../agents/pi-embedded-runner/runs.js";
+} from "../../agents/pi-embedded.js";
 import { clearSessionQueues } from "../../auto-reply/reply/queue/cleanup.js";
 import { loadConfig } from "../../config/config.js";
 import {
@@ -53,6 +53,7 @@ import {
   loadCombinedSessionStoreForGateway,
   loadGatewaySessionRow,
   loadSessionEntry,
+  findSessionEntryByStoreKeys,
   migrateAndPruneGatewaySessionStoreKey,
   readSessionPreviewItemsFromTranscript,
   resolveGatewaySessionStoreTarget,
@@ -583,7 +584,7 @@ export const sessionsHandlers: GatewayRequestHandlers = {
           key,
           store,
         });
-        const entry = target.storeKeys.map((candidate) => store[candidate]).find(Boolean);
+        const entry = findSessionEntryByStoreKeys(store, target.storeKeys)?.entry;
         if (!entry?.sessionId) {
           previews.push({ key, status: "missing", items: [] });
           continue;

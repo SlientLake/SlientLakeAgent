@@ -489,7 +489,7 @@ describe("chat view", () => {
 
     select = container.querySelector<HTMLSelectElement>("select");
     expect(select?.value).toBe("zh-CN");
-    expect(select?.selectedOptions[0]?.textContent?.trim()).toBe("简体中文 (简体中文)");
+    expect(select?.selectedOptions[0]?.textContent?.trim()).toBe("简体中文 (Simplified Chinese)");
 
     await i18n.setLocale("en");
   });

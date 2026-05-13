@@ -260,27 +260,16 @@ function parseHexRgb(hex: string): [number, number, number] | null {
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }
 
-let cachedThemeNoticeColors: {
-  warnHex: string;
-  dangerHex: string;
-  warnRgb: [number, number, number];
-  dangerRgb: [number, number, number];
-} | null = null;
-
 function getThemeNoticeColors() {
-  if (cachedThemeNoticeColors) {
-    return cachedThemeNoticeColors;
-  }
   const rootStyle = getComputedStyle(document.documentElement);
   const warnHex = rootStyle.getPropertyValue("--warn").trim() || "#f59e0b";
   const dangerHex = rootStyle.getPropertyValue("--danger").trim() || "#ef4444";
-  cachedThemeNoticeColors = {
+  return {
     warnHex,
     dangerHex,
     warnRgb: parseHexRgb(warnHex) ?? [245, 158, 11],
     dangerRgb: parseHexRgb(dangerHex) ?? [239, 68, 68],
   };
-  return cachedThemeNoticeColors;
 }
 
 function renderContextNotice(
@@ -619,7 +608,7 @@ function renderWelcomeState(props: ChatProps): TemplateResult {
       ${
         avatar
           ? html`<img src=${avatar} alt=${name} style="width:56px; height:56px; border-radius:50%; object-fit:cover;" />`
-          : html`<div class="agent-chat__avatar agent-chat__avatar--logo"><img src=${logoUrl} alt="OpenClaw" /></div>`
+          : html`<div class="agent-chat__avatar agent-chat__avatar--logo"><img src=${logoUrl} alt="SilentLake" /></div>`
       }
       <h2>${name}</h2>
       <div class="agent-chat__badges">

@@ -403,7 +403,14 @@ export function attachGatewayWsMessageHandler(params: {
 
         const isControlUi = connectParams.client.id === GATEWAY_CLIENT_IDS.CONTROL_UI;
         const isWebchat = isWebchatConnect(connectParams);
-        if (enforceOriginCheckForAnyClient || isControlUi || isWebchat) {
+        const hasTailscaleIdentityHeaders = Boolean(
+          upgradeReq.headers["tailscale-user-login"] || upgradeReq.headers["tailscale-user-name"],
+        );
+        const shouldEnforceOriginCheck =
+          isControlUi ||
+          isWebchat ||
+          (enforceOriginCheckForAnyClient && !hasTailscaleIdentityHeaders);
+        if (shouldEnforceOriginCheck) {
           const hostHeaderOriginFallbackEnabled =
             configSnapshot.gateway?.controlUi?.dangerouslyAllowHostHeaderOriginFallback === true;
           const originCheck = checkBrowserOrigin({
@@ -507,10 +514,8 @@ export function attachGatewayWsMessageHandler(params: {
           close(1008, truncateCloseReason(authMessage));
         };
         const clearUnboundScopes = () => {
-          if (scopes.length > 0) {
-            scopes = [];
-            connectParams.scopes = scopes;
-          }
+          scopes = [];
+          connectParams.scopes = scopes;
         };
         const handleMissingDeviceIdentity = (): boolean => {
           const trustedProxyAuthOk = isTrustedProxyControlUiOperatorAuth({
@@ -531,11 +536,21 @@ export function attachGatewayWsMessageHandler(params: {
             hasSharedAuth,
             isLocalClient,
           });
-          // Shared token/password auth can bypass pairing for trusted operators.
-          // Device-less clients only keep self-declared scopes on the explicit
-          // allow path, including trusted token-authenticated backend operators.
-          if (!device && decision.kind !== "allow") {
+          const restrictTrustedProxyControlUiScopes =
+            !device &&
+            decision.kind === "allow" &&
+            trustedProxyAuthOk &&
+            isControlUi &&
+            role === "operator";
+          // Preserve requested scopes for device-less connections that were
+          // explicitly allowed by shared auth / local policy. The one exception
+          // is trusted-proxy Control UI auth: that flow bypasses device identity
+          // to bootstrap pairing, but it must not inherit arbitrary operator
+          // scopes from the browser.
+          if (restrictTrustedProxyControlUiScopes) {
             clearUnboundScopes();
+            scopes = ["operator.pairing"];
+            connectParams.scopes = scopes;
           }
           if (decision.kind === "allow") {
             return true;
@@ -746,6 +761,7 @@ export function attachGatewayWsMessageHandler(params: {
               deviceId: device.id,
               publicKey: devicePublicKey,
               ...clientPairingMetadata,
+              mergeWithExisting: true,
               silent: allowSilentLocalPairing,
             });
             const context = buildRequestContext();

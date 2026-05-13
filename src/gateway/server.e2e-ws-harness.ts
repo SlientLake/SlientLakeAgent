@@ -3,6 +3,7 @@ import { captureEnv } from "../test-utils/env.js";
 import {
   connectOk,
   getFreePort,
+  syncGatewayTestConfigForTest,
   startGatewayServer,
   trackConnectChallengeNonce,
 } from "./test-helpers.js";
@@ -26,6 +27,7 @@ export async function startGatewayServerHarness(): Promise<GatewayServerHarness>
   const server = await startGatewayServer(port);
 
   const openClient = async (opts?: Parameters<typeof connectOk>[1]): Promise<GatewayWsClient> => {
+    await syncGatewayTestConfigForTest();
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
     trackConnectChallengeNonce(ws);
     await new Promise<void>((resolve) => ws.once("open", resolve));

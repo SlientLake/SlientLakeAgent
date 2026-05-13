@@ -3,7 +3,12 @@ import { spawn } from "node:child_process";
 import { enableCompileCache } from "node:module";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { isRootHelpInvocation, isRootVersionInvocation } from "./cli/argv.js";
+import {
+  getPrimaryCommand,
+  hasHelpOrVersion,
+  isRootHelpInvocation,
+  isRootVersionInvocation,
+} from "./cli/argv.js";
 import { applyCliProfileEnv, parseCliProfileArgs } from "./cli/profile.js";
 import { normalizeWindowsArgv } from "./cli/windows-argv.js";
 import { buildCliRespawnPlan } from "./entry.respawn.js";
@@ -44,7 +49,7 @@ if (
   const { installGaxiosFetchCompat } = await import("./infra/gaxios-fetch-compat.js");
 
   await installGaxiosFetchCompat();
-  process.title = "openclaw";
+  process.title = "silentlake";
   ensureOpenClawExecMarkerOnProcess();
   installProcessWarningFilter();
   normalizeEnv();
@@ -88,7 +93,7 @@ if (
 
     child.once("error", (error) => {
       console.error(
-        "[openclaw] Failed to respawn CLI:",
+        "[silentlake] Failed to respawn CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exit(1);
@@ -105,12 +110,12 @@ if (
     Promise.all([import("./version.js"), import("./infra/git-commit.js")])
       .then(([{ VERSION }, { resolveCommitHash }]) => {
         const commit = resolveCommitHash({ moduleUrl: import.meta.url });
-        console.log(commit ? `OpenClaw ${VERSION} (${commit})` : `OpenClaw ${VERSION}`);
+        console.log(commit ? `SilentLake ${VERSION} (${commit})` : `SilentLake ${VERSION}`);
         process.exit(0);
       })
       .catch((error) => {
         console.error(
-          "[openclaw] Failed to resolve version:",
+          "[silentlake] Failed to resolve version:",
           error instanceof Error ? (error.stack ?? error.message) : error,
         );
         process.exitCode = 1;
@@ -124,7 +129,7 @@ if (
     const parsed = parseCliProfileArgs(process.argv);
     if (!parsed.ok) {
       // Keep it simple; Commander will handle rich help/errors after we strip flags.
-      console.error(`[openclaw] ${parsed.error}`);
+      console.error(`[silentlake] ${parsed.error}`);
       process.exit(2);
     }
 
@@ -154,7 +159,7 @@ export function tryHandleRootHelpFastPath(
     deps.onError ??
     ((error: unknown) => {
       console.error(
-        "[openclaw] Failed to display help:",
+        "[silentlake] Failed to display help:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;
@@ -179,11 +184,26 @@ function runMainOrRootHelp(argv: string[]): void {
   if (tryHandleRootHelpFastPath(argv)) {
     return;
   }
+  // Keep bare `silentlake` invocations as a help path with success exit code.
+  if (getPrimaryCommand(argv) === null && !hasHelpOrVersion(argv)) {
+    import("./cli/program/root-help.js")
+      .then(({ outputRootHelp }) => {
+        outputRootHelp();
+      })
+      .catch((error) => {
+        console.error(
+          "[silentlake] Failed to display help:",
+          error instanceof Error ? (error.stack ?? error.message) : error,
+        );
+        process.exitCode = 1;
+      });
+    return;
+  }
   import("./cli/run-main.js")
     .then(({ runCli }) => runCli(argv))
     .catch((error) => {
       console.error(
-        "[openclaw] Failed to start CLI:",
+        "[silentlake] Failed to start CLI:",
         error instanceof Error ? (error.stack ?? error.message) : error,
       );
       process.exitCode = 1;

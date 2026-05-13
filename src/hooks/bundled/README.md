@@ -81,7 +81,7 @@ session-memory/
 ---
 name: my-hook
 description: "Short description"
-homepage: https://docs.openclaw.ai/automation/hooks#my-hook
+homepage: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/automation/hooks#my-hook
 metadata:
   { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
 ---
@@ -220,4 +220,4 @@ Test your hooks by:
 
 ## Documentation
 
-Full documentation: https://docs.openclaw.ai/automation/hooks
+Full documentation: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/automation/hooks

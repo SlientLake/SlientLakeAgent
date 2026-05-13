@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mockPinnedHostnameResolution } from "../../../src/test-helpers/ssrf.js";
 import { createPluginRuntimeMock } from "../../../test/helpers/extensions/plugin-runtime-mock.js";
 import type { PluginRuntime, SsrFPolicy } from "../runtime-api.js";
 import {
@@ -676,6 +677,7 @@ describe("msteams attachments", () => {
     detectMimeMock.mockClear();
     saveMediaBufferMock.mockClear();
     fetchRemoteMediaMock.mockClear();
+    mockPinnedHostnameResolution(["93.184.216.34"]);
     setMSTeamsRuntime(runtimeStub);
   });
 

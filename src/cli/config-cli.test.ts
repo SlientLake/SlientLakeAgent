@@ -7,7 +7,7 @@ import type { ConfigFileSnapshot, OpenClawConfig } from "../config/types.js";
 
 /**
  * Test for issue #6070:
- * `openclaw config set/unset` must update snapshot.resolved (user config after $include/${ENV},
+ * `silentlake config set/unset` must update snapshot.resolved (user config after $include/${ENV},
  * but before runtime defaults), so runtime defaults don't leak into the written config.
  */
 
@@ -47,7 +47,7 @@ function buildSnapshot(params: {
   config: OpenClawConfig;
 }): ConfigFileSnapshot {
   return {
-    path: "/tmp/openclaw.json",
+    path: "/tmp/silentlake.json",
     exists: true,
     raw: JSON.stringify(params.resolved),
     parsed: params.resolved,
@@ -85,7 +85,7 @@ function makeInvalidSnapshot(params: {
   path?: string;
 }): ConfigFileSnapshot {
   return {
-    path: params.path ?? "/tmp/custom-openclaw.json",
+    path: params.path ?? "/tmp/custom-silentlake.json",
     exists: true,
     raw: "{}",
     parsed: {},
@@ -360,7 +360,7 @@ describe("config cli", () => {
 
       const payload = await runValidateJsonAndGetPayload();
       expect(payload.valid).toBe(false);
-      expect(payload.path).toBe("/tmp/custom-openclaw.json");
+      expect(payload.path).toBe("/tmp/custom-silentlake.json");
       expect(payload.issues).toEqual([{ path: "gateway.bind", message: "Invalid enum value" }]);
       expect(mockError).not.toHaveBeenCalled();
     });
@@ -381,7 +381,7 @@ describe("config cli", () => {
 
       const payload = await runValidateJsonAndGetPayload();
       expect(payload.valid).toBe(false);
-      expect(payload.path).toBe("/tmp/custom-openclaw.json");
+      expect(payload.path).toBe("/tmp/custom-silentlake.json");
       expect(payload.issues).toEqual([
         {
           path: "update.channel",
@@ -394,7 +394,7 @@ describe("config cli", () => {
 
     it("prints file-not-found and exits 1 when config file is missing", async () => {
       setSnapshotOnce({
-        path: "/tmp/openclaw.json",
+        path: "/tmp/silentlake.json",
         exists: false,
         raw: null,
         parsed: {},
@@ -486,13 +486,13 @@ describe("config cli", () => {
       expect(helpText).toContain("--batch-json");
       expect(helpText).toContain("--dry-run");
       expect(helpText).toContain("--allow-exec");
-      expect(helpText).toContain("openclaw config set gateway.port 19001 --strict-json");
+      expect(helpText).toContain("silentlake config set gateway.port 19001 --strict-json");
       expect(helpText).toContain(
-        "openclaw config set channels.discord.token --ref-provider default --ref-source",
+        "silentlake config set channels.discord.token --ref-provider default --ref-source",
       );
       expect(helpText).toContain("--ref-id DISCORD_BOT_TOKEN");
       expect(helpText).toContain(
-        "openclaw config set --batch-file ./config-set.batch.json --dry-run",
+        "silentlake config set --batch-file ./config-set.batch.json --dry-run",
       );
     });
   });
@@ -740,7 +740,7 @@ describe("config cli", () => {
     it("rejects --allow-exec without --dry-run", async () => {
       const nonexistentBatchPath = path.join(
         os.tmpdir(),
-        `openclaw-config-batch-nonexistent-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `silentlake-config-batch-nonexistent-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       await expect(
         runConfigCommand(["config", "set", "--batch-file", nonexistentBatchPath, "--allow-exec"]),
@@ -903,7 +903,7 @@ describe("config cli", () => {
 
       const pathname = path.join(
         os.tmpdir(),
-        `openclaw-config-batch-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `silentlake-config-batch-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       fs.writeFileSync(pathname, '[{"path":"gateway.auth.mode","value":"token"}]', "utf8");
       try {
@@ -920,7 +920,7 @@ describe("config cli", () => {
     it("rejects malformed batch-file payloads", async () => {
       const pathname = path.join(
         os.tmpdir(),
-        `openclaw-config-batch-invalid-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        `silentlake-config-batch-invalid-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
       );
       fs.writeFileSync(pathname, '{"path":"gateway.auth.mode","value":"token"}', "utf8");
       try {
@@ -1312,19 +1312,19 @@ describe("config cli", () => {
 
       await runConfigCommand(["config", "file"]);
 
-      expect(mockLog).toHaveBeenCalledWith("/tmp/openclaw.json");
+      expect(mockLog).toHaveBeenCalledWith("/tmp/silentlake.json");
       expect(mockWriteConfigFile).not.toHaveBeenCalled();
     });
 
     it("handles config file path with home directory", async () => {
       const resolved: OpenClawConfig = { gateway: { port: 18789 } };
       const snapshot = buildSnapshot({ resolved, config: resolved });
-      snapshot.path = "/home/user/.openclaw/openclaw.json";
+      snapshot.path = "/home/user/.silentlake/silentlake.json";
       mockReadConfigFileSnapshot.mockResolvedValueOnce(snapshot);
 
       await runConfigCommand(["config", "file"]);
 
-      expect(mockLog).toHaveBeenCalledWith("/home/user/.openclaw/openclaw.json");
+      expect(mockLog).toHaveBeenCalledWith("/home/user/.silentlake/silentlake.json");
     });
   });
 });

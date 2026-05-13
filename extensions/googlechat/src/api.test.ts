@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { mockPinnedHostnameResolution } from "../../../src/test-helpers/ssrf.js";
 import type { ResolvedGoogleChatAccount } from "./accounts.js";
 import { downloadGoogleChatMedia, sendGoogleChatMessage } from "./api.js";
 
@@ -12,6 +13,8 @@ const account = {
   credentialSource: "inline",
   config: {},
 } as ResolvedGoogleChatAccount;
+
+mockPinnedHostnameResolution();
 
 function stubSuccessfulSend(name: string) {
   const fetchMock = vi

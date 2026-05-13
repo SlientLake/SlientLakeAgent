@@ -34,6 +34,10 @@ async function resolveProvidersForModelsJson(params: {
 }): Promise<Record<string, ProviderConfig>> {
   const { cfg, agentDir, env } = params;
   const explicitProviders = cfg.models?.providers ?? {};
+  const mode = cfg.models?.mode ?? "merge";
+  if (mode === "replace" && Object.keys(explicitProviders).length > 0) {
+    return explicitProviders;
+  }
   const implicitProviders = await resolveImplicitProviders({
     agentDir,
     config: cfg,

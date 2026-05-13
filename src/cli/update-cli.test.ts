@@ -427,7 +427,7 @@ describe("update-cli", () => {
         options: { json: false },
         assert: () => {
           const logs = vi.mocked(defaultRuntime.log).mock.calls.map((call) => call[0]);
-          expect(logs.join("\n")).toContain("OpenClaw update status");
+          expect(logs.join("\n")).toContain("SilentLake update status");
         },
       },
       {
@@ -560,15 +560,15 @@ describe("update-cli", () => {
           mockPackageInstallStatus(createCaseDir("openclaw-update"));
           await updateCommand({ yes: true, tag: "main" });
         },
-        expectedSpec: "github:openclaw/openclaw#main",
+        expectedSpec: "github:SlientLake/SlientLakeAgent#main",
       },
       {
         name: "explicit git package spec",
         run: async () => {
           mockPackageInstallStatus(createCaseDir("openclaw-update"));
-          await updateCommand({ yes: true, tag: "github:openclaw/openclaw#main" });
+          await updateCommand({ yes: true, tag: "github:SlientLake/SlientLakeAgent#main" });
         },
-        expectedSpec: "github:openclaw/openclaw#main",
+        expectedSpec: "github:SlientLake/SlientLakeAgent#main",
       },
       {
         name: "OPENCLAW_UPDATE_PACKAGE_SPEC override",

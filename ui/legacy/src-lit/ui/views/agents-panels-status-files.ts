@@ -209,7 +209,7 @@ export function renderAgentChannels(params: {
                               ? html`
                                   <div>
                                     <a
-                                      href="https://docs.openclaw.ai/channels"
+                                      href="https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/channels"
                                       target="_blank"
                                       rel="noopener"
                                       style="color: var(--accent); font-size: 12px"

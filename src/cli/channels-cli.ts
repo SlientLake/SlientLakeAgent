@@ -78,7 +78,7 @@ export function registerChannelsCli(program: Command) {
           ["openclaw channels login --channel whatsapp", "Link a WhatsApp Web account."],
         ])}\n\n${theme.muted("Docs:")} ${formatDocsLink(
           "/cli/channels",
-          "docs.openclaw.ai/cli/channels",
+          "github.com/SlientLake/SlientLakeAgent/tree/main/docs/cli/channels",
         )}\n`,
     );
 

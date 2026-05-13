@@ -23,20 +23,34 @@ type EmbeddedRunWaiter = {
   timer: NodeJS.Timeout;
 };
 
+type EmbeddedPiRunTestHooks = {
+  isActive?: (sessionId: string) => boolean;
+  abort?: (sessionId: string) => boolean;
+  waitForEnd?: (sessionId: string, timeoutMs: number) => Promise<boolean>;
+};
+
 /**
  * Use global singleton state so busy/streaming checks stay consistent even
  * when the bundler emits multiple copies of this module into separate chunks.
  */
 const EMBEDDED_RUN_STATE_KEY = Symbol.for("openclaw.embeddedRunState");
+const EMBEDDED_RUN_TEST_HOOKS_KEY = Symbol.for("openclaw.embeddedRunTestHooks");
 
 const embeddedRunState = resolveGlobalSingleton(EMBEDDED_RUN_STATE_KEY, () => ({
   activeRuns: new Map<string, EmbeddedPiQueueHandle>(),
   snapshots: new Map<string, ActiveEmbeddedRunSnapshot>(),
   waiters: new Map<string, Set<EmbeddedRunWaiter>>(),
 }));
+const embeddedRunTestHooks = resolveGlobalSingleton(EMBEDDED_RUN_TEST_HOOKS_KEY, () => ({
+  value: null as EmbeddedPiRunTestHooks | null,
+}));
 const ACTIVE_EMBEDDED_RUNS = embeddedRunState.activeRuns;
 const ACTIVE_EMBEDDED_RUN_SNAPSHOTS = embeddedRunState.snapshots;
 const EMBEDDED_RUN_WAITERS = embeddedRunState.waiters;
+
+export function setEmbeddedPiRunTestHooksForTest(hooks: EmbeddedPiRunTestHooks | null) {
+  embeddedRunTestHooks.value = hooks;
+}
 
 export function queueEmbeddedPiMessage(sessionId: string, text: string): boolean {
   const handle = ACTIVE_EMBEDDED_RUNS.get(sessionId);
@@ -72,6 +86,9 @@ export function abortEmbeddedPiRun(
   sessionId?: string,
   opts?: { mode?: "all" | "compacting" },
 ): boolean {
+  if (typeof sessionId === "string" && sessionId.length > 0 && embeddedRunTestHooks.value?.abort) {
+    return embeddedRunTestHooks.value.abort(sessionId);
+  }
   if (typeof sessionId === "string" && sessionId.length > 0) {
     const handle = ACTIVE_EMBEDDED_RUNS.get(sessionId);
     if (!handle) {
@@ -124,6 +141,9 @@ export function abortEmbeddedPiRun(
 }
 
 export function isEmbeddedPiRunActive(sessionId: string): boolean {
+  if (embeddedRunTestHooks.value?.isActive) {
+    return embeddedRunTestHooks.value.isActive(sessionId);
+  }
   const active = ACTIVE_EMBEDDED_RUNS.has(sessionId);
   if (active) {
     diag.debug(`run active check: sessionId=${sessionId} active=true`);
@@ -180,6 +200,9 @@ export async function waitForActiveEmbeddedRuns(
 }
 
 export function waitForEmbeddedPiRunEnd(sessionId: string, timeoutMs = 15_000): Promise<boolean> {
+  if (embeddedRunTestHooks.value?.waitForEnd) {
+    return embeddedRunTestHooks.value.waitForEnd(sessionId, timeoutMs);
+  }
   if (!sessionId || !ACTIVE_EMBEDDED_RUNS.has(sessionId)) {
     return Promise.resolve(true);
   }

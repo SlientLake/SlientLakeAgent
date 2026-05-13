@@ -334,7 +334,7 @@ describe("createTelegramBot", () => {
         expect(pairingText, testCase.name).toContain("Pairing code:");
         const code = pairingText.match(/Pairing code:\s*([A-Z2-9]{8})/)?.[1];
         expect(code, testCase.name).toBeDefined();
-        expect(pairingText, testCase.name).toContain(`openclaw pairing approve telegram ${code}`);
+        expect(pairingText, testCase.name).toContain(`silentlake pairing approve telegram ${code}`);
         expect(pairingText, testCase.name).not.toContain("<code>");
       }
     });

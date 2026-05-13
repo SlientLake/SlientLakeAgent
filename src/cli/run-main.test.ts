@@ -129,10 +129,12 @@ describe("shouldEnsureCliPath", () => {
 });
 
 describe("shouldUseRootHelpFastPath", () => {
-  it("uses the fast path for root help only", () => {
+  it("uses the fast path for root help and bare invocations", () => {
     expect(shouldUseRootHelpFastPath(["node", "openclaw", "--help"])).toBe(true);
+    expect(shouldUseRootHelpFastPath(["node", "openclaw"])).toBe(true);
     expect(shouldUseRootHelpFastPath(["node", "openclaw", "--profile", "work", "-h"])).toBe(true);
     expect(shouldUseRootHelpFastPath(["node", "openclaw", "status", "--help"])).toBe(false);
     expect(shouldUseRootHelpFastPath(["node", "openclaw", "--help", "status"])).toBe(false);
+    expect(shouldUseRootHelpFastPath(["node", "openclaw", "--version"])).toBe(false);
   });
 });

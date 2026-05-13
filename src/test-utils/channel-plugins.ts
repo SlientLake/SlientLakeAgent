@@ -13,8 +13,40 @@ type TestChannelRegistration = {
   source: string;
 };
 
+const createTestPluginRecord = (
+  entry: TestChannelRegistration,
+): PluginRegistry["plugins"][number] => {
+  const plugin = entry.plugin as Partial<ChannelPlugin> & {
+    meta?: { label?: string; blurb?: string };
+  };
+  return {
+    id: entry.pluginId,
+    name: plugin.meta?.label ?? entry.pluginId,
+    description: plugin.meta?.blurb,
+    source: entry.source,
+    origin: "workspace",
+    enabled: true,
+    status: "loaded",
+    toolNames: [],
+    hookNames: [],
+    channelIds: [entry.pluginId],
+    providerIds: [],
+    speechProviderIds: [],
+    mediaUnderstandingProviderIds: [],
+    imageGenerationProviderIds: [],
+    webSearchProviderIds: [],
+    gatewayMethods: [],
+    cliCommands: [],
+    services: [],
+    commands: [],
+    httpRoutes: 0,
+    hookCount: 0,
+    configSchema: false,
+  };
+};
+
 export const createTestRegistry = (channels: TestChannelRegistration[] = []): PluginRegistry => ({
-  plugins: [],
+  plugins: channels.map((entry) => createTestPluginRecord(entry)),
   tools: [],
   hooks: [],
   typedHooks: [],

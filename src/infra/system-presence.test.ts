@@ -63,7 +63,7 @@ describe("system-presence", () => {
 
   it("parses node presence text and normalizes the update key", () => {
     const update = updateSystemPresence({
-      text: "Node: Relay-Host (10.0.0.9) · app 2.1.0 · last input 7s ago · mode ui · reason beacon",
+      text: "Node: Relay-Host (10.0.0.9) · app 3.0.0 · last input 7s ago · mode ui · reason beacon",
       instanceId: "  Mixed-Case-Node  ",
     });
 
@@ -72,11 +72,11 @@ describe("system-presence", () => {
     expect(update.next).toMatchObject({
       host: "Relay-Host",
       ip: "10.0.0.9",
-      version: "2.1.0",
+      version: "3.0.0",
       lastInputSeconds: 7,
       mode: "ui",
       reason: "beacon",
-      text: "Node: Relay-Host (10.0.0.9) · app 2.1.0 · last input 7s ago · mode ui · reason beacon",
+      text: "Node: Relay-Host (10.0.0.9) · app 3.0.0 · last input 7s ago · mode ui · reason beacon",
     });
   });
 

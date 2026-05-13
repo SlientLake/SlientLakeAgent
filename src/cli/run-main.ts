@@ -76,7 +76,12 @@ export function shouldEnsureCliPath(argv: string[]): boolean {
 }
 
 export function shouldUseRootHelpFastPath(argv: string[]): boolean {
-  return isRootHelpInvocation(argv);
+  if (isRootHelpInvocation(argv)) {
+    return true;
+  }
+  // Treat bare invocations like `silentlake` as root help instead of
+  // surfacing a commander parse error exit code.
+  return getPrimaryCommand(argv) === null && !hasHelpOrVersion(argv);
 }
 
 export async function runCli(argv: string[] = process.argv) {

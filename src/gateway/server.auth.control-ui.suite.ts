@@ -126,6 +126,7 @@ export function registerControlUiAndPairingSuite(): void {
     const res = await connectReq(params.ws, {
       ...(params.token ? { token: params.token } : {}),
       ...(params.password ? { password: params.password } : {}),
+      scopes: ["operator.admin"],
       device: null,
       client: { ...CONTROL_UI_CLIENT },
     });

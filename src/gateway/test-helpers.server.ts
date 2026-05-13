@@ -4,6 +4,9 @@ import os from "node:os";
 import path from "node:path";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, vi } from "vitest";
 import { WebSocket } from "ws";
+import { resetContextWindowCacheForTest } from "../agents/context.js";
+import { setEmbeddedPiRunTestHooksForTest } from "../agents/pi-embedded-runner/runs.js";
+import { setGetReplyFromConfigTestHookForTest } from "../auto-reply/reply/get-reply.js";
 import {
   clearConfigCache,
   clearRuntimeConfigSnapshot,
@@ -34,6 +37,7 @@ import {
   agentCommand,
   cronIsolatedRun,
   embeddedRunMock,
+  getReplyFromConfig,
   piSdkMock,
   sessionStoreSaveDelayMs,
   setTestConfigRoot,
@@ -57,6 +61,10 @@ const GATEWAY_TEST_ENV_KEYS = [
   "USERPROFILE",
   "OPENCLAW_STATE_DIR",
   "OPENCLAW_CONFIG_PATH",
+  "OPENCLAW_GATEWAY_TOKEN",
+  "OPENCLAW_GATEWAY_PASSWORD",
+  "OPENCLAW_GATEWAY_REMOTE_TOKEN",
+  "OPENCLAW_GATEWAY_REMOTE_PASSWORD",
   "OPENCLAW_SKIP_BROWSER_CONTROL_SERVER",
   "OPENCLAW_SKIP_GMAIL_WATCHER",
   "OPENCLAW_SKIP_CANVAS_HOST",
@@ -72,7 +80,7 @@ let tempHome: string | undefined;
 let tempConfigRoot: string | undefined;
 let suiteConfigRootSeq = 0;
 
-async function persistTestSessionStorePath(storePath: string): Promise<void> {
+export async function syncGatewayTestConfigForTest(): Promise<void> {
   const configPaths = new Set<string>();
   if (process.env.OPENCLAW_CONFIG_PATH) {
     configPaths.add(process.env.OPENCLAW_CONFIG_PATH);
@@ -80,10 +88,8 @@ async function persistTestSessionStorePath(storePath: string): Promise<void> {
   if (process.env.OPENCLAW_STATE_DIR) {
     configPaths.add(path.join(process.env.OPENCLAW_STATE_DIR, "openclaw.json"));
   }
-  const parsedConfigs = new Map<string, Record<string, unknown>>();
-  let preservedTemplateStore: string | undefined;
   for (const configPath of configPaths) {
-    let config: Record<string, unknown> = {};
+    let baseConfig: Record<string, unknown> = {};
     try {
       const raw = await fs.readFile(configPath, "utf-8");
       const parsed = parseConfigJson5(raw);
@@ -93,32 +99,130 @@ async function persistTestSessionStorePath(storePath: string): Promise<void> {
         typeof parsed.parsed === "object" &&
         !Array.isArray(parsed.parsed)
       ) {
-        config = parsed.parsed as Record<string, unknown>;
+        baseConfig = parsed.parsed as Record<string, unknown>;
       }
     } catch {
-      config = {};
+      baseConfig = {};
     }
-    parsedConfigs.set(configPath, config);
-    const session =
-      config.session && typeof config.session === "object" && !Array.isArray(config.session)
-        ? (config.session as Record<string, unknown>)
-        : undefined;
-    const existingStore = typeof session?.store === "string" ? session.store.trim() : "";
-    if (!preservedTemplateStore && existingStore.includes("{agentId}")) {
-      preservedTemplateStore = existingStore;
-    }
-  }
-  const nextStoreValue = preservedTemplateStore || storePath;
-  for (const configPath of configPaths) {
-    const config = { ...parsedConfigs.get(configPath) };
-    const session =
-      config.session && typeof config.session === "object" && !Array.isArray(config.session)
-        ? { ...(config.session as Record<string, unknown>) }
+
+    const fileAgents =
+      baseConfig.agents &&
+      typeof baseConfig.agents === "object" &&
+      !Array.isArray(baseConfig.agents)
+        ? (baseConfig.agents as Record<string, unknown>)
         : {};
-    session.store = nextStoreValue;
-    config.session = session;
+    const fileDefaults =
+      fileAgents.defaults &&
+      typeof fileAgents.defaults === "object" &&
+      !Array.isArray(fileAgents.defaults)
+        ? (fileAgents.defaults as Record<string, unknown>)
+        : {};
+    const defaults = {
+      model: { primary: "anthropic/claude-opus-4-6" },
+      workspace: path.join(os.tmpdir(), "openclaw-gateway-test"),
+      ...fileDefaults,
+      ...testState.agentConfig,
+    };
+    const agents = testState.agentsConfig
+      ? { ...fileAgents, ...testState.agentsConfig, defaults }
+      : { ...fileAgents, defaults };
+
+    const fileChannels =
+      baseConfig.channels &&
+      typeof baseConfig.channels === "object" &&
+      !Array.isArray(baseConfig.channels)
+        ? ({ ...(baseConfig.channels as Record<string, unknown>) } as Record<string, unknown>)
+        : {};
+    const overrideChannels =
+      testState.channelsConfig && typeof testState.channelsConfig === "object"
+        ? { ...testState.channelsConfig }
+        : {};
+    const mergedChannels = { ...fileChannels, ...overrideChannels };
+    if (testState.allowFrom !== undefined) {
+      const existing =
+        mergedChannels.whatsapp &&
+        typeof mergedChannels.whatsapp === "object" &&
+        !Array.isArray(mergedChannels.whatsapp)
+          ? (mergedChannels.whatsapp as Record<string, unknown>)
+          : {};
+      mergedChannels.whatsapp = {
+        ...existing,
+        allowFrom: testState.allowFrom,
+      };
+    }
+    const channels = Object.keys(mergedChannels).length > 0 ? mergedChannels : undefined;
+
+    const fileSession =
+      baseConfig.session &&
+      typeof baseConfig.session === "object" &&
+      !Array.isArray(baseConfig.session)
+        ? (baseConfig.session as Record<string, unknown>)
+        : {};
+    const session: Record<string, unknown> = {
+      ...fileSession,
+      mainKey: fileSession.mainKey ?? "main",
+    };
+    if (typeof testState.sessionStorePath === "string") {
+      session.store = testState.sessionStorePath;
+    }
+    if (testState.sessionConfig) {
+      Object.assign(session, testState.sessionConfig);
+    }
+
+    const fileGateway =
+      baseConfig.gateway &&
+      typeof baseConfig.gateway === "object" &&
+      !Array.isArray(baseConfig.gateway)
+        ? ({ ...(baseConfig.gateway as Record<string, unknown>) } as Record<string, unknown>)
+        : {};
+    if (testState.gatewayBind) {
+      fileGateway.bind = testState.gatewayBind;
+    }
+    if (testState.gatewayAuth) {
+      fileGateway.auth = testState.gatewayAuth;
+    }
+    if (testState.gatewayControlUi) {
+      fileGateway.controlUi = testState.gatewayControlUi;
+    }
+    const gateway = Object.keys(fileGateway).length > 0 ? fileGateway : undefined;
+
+    const fileCanvasHost =
+      baseConfig.canvasHost &&
+      typeof baseConfig.canvasHost === "object" &&
+      !Array.isArray(baseConfig.canvasHost)
+        ? ({ ...(baseConfig.canvasHost as Record<string, unknown>) } as Record<string, unknown>)
+        : {};
+    if (typeof testState.canvasHostPort === "number") {
+      fileCanvasHost.port = testState.canvasHostPort;
+    }
+    const canvasHost = Object.keys(fileCanvasHost).length > 0 ? fileCanvasHost : undefined;
+
+    const fileCron =
+      baseConfig.cron && typeof baseConfig.cron === "object" && !Array.isArray(baseConfig.cron)
+        ? ({ ...(baseConfig.cron as Record<string, unknown>) } as Record<string, unknown>)
+        : {};
+    if (typeof testState.cronEnabled === "boolean") {
+      fileCron.enabled = testState.cronEnabled;
+    }
+    if (typeof testState.cronStorePath === "string") {
+      fileCron.store = testState.cronStorePath;
+    }
+    const cron = Object.keys(fileCron).length > 0 ? fileCron : undefined;
+
+    const nextConfig = {
+      ...baseConfig,
+      agents,
+      bindings: testState.bindingsConfig ?? baseConfig.bindings,
+      channels,
+      session,
+      gateway,
+      canvasHost,
+      hooks: testState.hooksConfig ?? baseConfig.hooks,
+      cron,
+    };
+
     await fs.mkdir(path.dirname(configPath), { recursive: true });
-    await fs.writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf-8");
+    await fs.writeFile(configPath, `${JSON.stringify(nextConfig, null, 2)}\n`, "utf-8");
   }
   clearRuntimeConfigSnapshot();
   clearConfigCache();
@@ -151,7 +255,7 @@ export async function writeSessionStore(params: {
   // Gateway suites often reuse the same store path across tests while writing the
   // file directly; clear the in-process cache so handlers reload the seeded state.
   clearSessionStoreCacheForTest();
-  await persistTestSessionStorePath(storePath);
+  await syncGatewayTestConfigForTest();
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, JSON.stringify(store, null, 2), "utf-8");
   clearSessionStoreCacheForTest();
@@ -164,6 +268,10 @@ async function setupGatewayTestHome() {
   process.env.USERPROFILE = tempHome;
   process.env.OPENCLAW_STATE_DIR = path.join(tempHome, ".openclaw");
   delete process.env.OPENCLAW_CONFIG_PATH;
+  delete process.env.OPENCLAW_GATEWAY_TOKEN;
+  delete process.env.OPENCLAW_GATEWAY_PASSWORD;
+  delete process.env.OPENCLAW_GATEWAY_REMOTE_TOKEN;
+  delete process.env.OPENCLAW_GATEWAY_REMOTE_PASSWORD;
 }
 
 function applyGatewaySkipEnv() {
@@ -229,8 +337,23 @@ async function resetGatewayTestState(options: { uniqueConfigRoot: boolean }) {
   embeddedRunMock.abortCalls = [];
   embeddedRunMock.waitCalls = [];
   embeddedRunMock.waitResults.clear();
+  setGetReplyFromConfigTestHookForTest((ctx, opts, configOverride) =>
+    getReplyFromConfig(ctx, opts, configOverride),
+  );
+  setEmbeddedPiRunTestHooksForTest({
+    isActive: (sessionId: string) => embeddedRunMock.activeIds.has(sessionId),
+    abort: (sessionId: string) => {
+      embeddedRunMock.abortCalls.push(sessionId);
+      return embeddedRunMock.activeIds.has(sessionId);
+    },
+    waitForEnd: async (sessionId: string) => {
+      embeddedRunMock.waitCalls.push(sessionId);
+      return embeddedRunMock.waitResults.get(sessionId) ?? true;
+    },
+  });
   drainSystemEvents(resolveMainSessionKeyFromConfig());
   resetAgentRunContextForTest();
+  resetContextWindowCacheForTest();
   const mod = await getServerModule();
   mod.__resetModelCatalogCacheForTest();
   piSdkMock.enabled = false;
@@ -245,6 +368,8 @@ async function cleanupGatewayTestHome(options: { restoreEnv: boolean }) {
     gatewayEnvSnapshot?.restore();
     gatewayEnvSnapshot = undefined;
   }
+  setGetReplyFromConfigTestHookForTest(null);
+  setEmbeddedPiRunTestHooksForTest(null);
   if (options.restoreEnv && tempHome) {
     await fs.rm(tempHome, {
       recursive: true,
@@ -379,6 +504,7 @@ export function onceMessage<T extends GatewayTestMessage = GatewayTestMessage>(
 }
 
 export async function startGatewayServer(port: number, opts?: GatewayServerOptions) {
+  await syncGatewayTestConfigForTest();
   const mod = await getServerModule();
   const resolvedOpts =
     opts?.controlUiEnabled === undefined ? { ...opts, controlUiEnabled: false } : opts;
@@ -639,9 +765,10 @@ export async function connectReq(
   const deviceToken = opts?.deviceToken?.trim() || undefined;
   const password = opts?.password ?? defaultPassword;
   const authTokenForSignature = token ?? deviceToken;
+  const isDeviceLessConnect = opts?.device === null;
   const requestedScopes = Array.isArray(opts?.scopes)
     ? opts.scopes
-    : role === "operator"
+    : role === "operator" && !isDeviceLessConnect
       ? ["operator.admin"]
       : [];
   if (opts?.skipConnectChallengeNonce && opts?.device === undefined) {

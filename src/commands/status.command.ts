@@ -707,8 +707,10 @@ export async function statusCommand(
   }
 
   runtime.log("");
-  runtime.log("FAQ: https://docs.openclaw.ai/faq");
-  runtime.log("Troubleshooting: https://docs.openclaw.ai/troubleshooting");
+  runtime.log("FAQ: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/faq");
+  runtime.log(
+    "Troubleshooting: https://github.com/SlientLake/SlientLakeAgent/tree/main/docs/troubleshooting",
+  );
   runtime.log("");
   const updateHint = formatUpdateAvailableHint(update);
   if (updateHint) {

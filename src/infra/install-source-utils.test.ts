@@ -264,7 +264,9 @@ describe("packNpmSpecToArchive", () => {
     if (!result.ok) {
       expect(result.error).toContain("Package not found on npm");
       expect(result.error).toContain("@openclaw/whatsapp");
-      expect(result.error).toContain("docs.openclaw.ai/tools/plugin");
+      expect(result.error).toContain(
+        "github.com/SlientLake/SlientLakeAgent/tree/main/docs/tools/plugin",
+      );
     }
   });
 

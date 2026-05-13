@@ -251,6 +251,7 @@ describe("gateway hot reload", () => {
   }
 
   async function writeGatewayTraversalExecRefConfig() {
+    const commandPath = await writeOwnedNodeExecShim();
     await writeConfigFile({
       gateway: {
         auth: {
@@ -262,7 +263,7 @@ describe("gateway hot reload", () => {
         providers: {
           vault: {
             source: "exec",
-            command: process.execPath,
+            command: commandPath,
           },
         },
       },
@@ -274,6 +275,7 @@ describe("gateway hot reload", () => {
     modePath: string;
     tokenValue: string;
   }) {
+    const commandPath = await writeOwnedNodeExecShim();
     await writeConfigFile({
       gateway: {
         auth: {
@@ -285,13 +287,28 @@ describe("gateway hot reload", () => {
         providers: {
           vault: {
             source: "exec",
-            command: process.execPath,
-            allowSymlinkCommand: true,
+            command: commandPath,
             args: [params.resolverScriptPath, params.modePath, params.tokenValue],
           },
         },
       },
     });
+  }
+
+  async function writeOwnedNodeExecShim() {
+    const stateDir = process.env.OPENCLAW_STATE_DIR;
+    if (!stateDir) {
+      throw new Error("OPENCLAW_STATE_DIR is not set");
+    }
+    const shimPath = path.join(stateDir, "owned-node-exec-shim.sh");
+    const escapedExecPath = JSON.stringify(process.execPath);
+    await fs.mkdir(path.dirname(shimPath), { recursive: true });
+    await fs.writeFile(shimPath, `#!/bin/sh\nexec ${escapedExecPath} "$@"\n`, {
+      encoding: "utf8",
+      mode: 0o700,
+    });
+    await fs.chmod(shimPath, 0o700);
+    return shimPath;
   }
 
   async function writeDisabledSurfaceRefConfig() {
@@ -567,9 +584,15 @@ describe("gateway hot reload", () => {
 
   it("fails startup when an active exec ref id contains traversal segments", async () => {
     await writeGatewayTraversalExecRefConfig();
-    await expect(withGatewayServer(async () => {})).rejects.toThrow(
-      /must not include "\." or "\.\." path segments/i,
-    );
+    const previousGatewayAuth = testState.gatewayAuth;
+    testState.gatewayAuth = undefined;
+    try {
+      await expect(withGatewayServer(async () => {})).rejects.toThrow(
+        /must not include "\." or "\.\." path segments/i,
+      );
+    } finally {
+      testState.gatewayAuth = previousGatewayAuth;
+    }
   });
 
   it("allows startup when unresolved refs exist only on disabled surfaces", async () => {

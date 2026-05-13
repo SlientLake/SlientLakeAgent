@@ -1,2 +1,5 @@
 **/node_modules/
 docs/.generated/
+ui/.vitest-attachments/
+ui/legacy/
+ui/src/ui/views/__screenshots__/
